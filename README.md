@@ -1,2 +1,3 @@
-# pulsar2-docs-en
-The docs repository of Pulsar2 which is AXera's SoC 2rd AI toolchain. Such as AX650A, AX650N, AX630C, AX620Q
+# Pulsar2 User Manual
+
+[Web Review](pulsar2-docs-en.readthedocs.io)

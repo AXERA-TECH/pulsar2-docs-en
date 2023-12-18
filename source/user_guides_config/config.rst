@@ -10,7 +10,7 @@ This section will introduce the **config** file in ``pulsar2 build`` in detail.
 Profile overview
 ------------------------------------
 
-- For the definition of all compilation parameters supported by the tool chain, please refer to :ref:`《proto Configuration Definition》<config_define>`, the basic data structure is ``BuildConfig``;
+- For the definition of all compilation parameters supported by the tool chain, please refer to :ref:`《proto Configuration Definition》<config_define_en>`, the basic data structure is ``BuildConfig``;
 
 - Users can write configuration files in the format of ``prototxt/relaxed json/yaml/toml`` according to parameter specifications, and point to the configuration file through the command line parameter ``--config``;
   
