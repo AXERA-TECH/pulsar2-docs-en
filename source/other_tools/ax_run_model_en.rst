@@ -40,7 +40,7 @@ The first part is the parameters related to speed measurement:
   --model
 
     - type of data: string
-    - required or not: 是
+    - required or not: yes
     - description: specify the path to the test model
 
   --repeat

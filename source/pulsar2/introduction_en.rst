@@ -6,7 +6,7 @@ Pulsar2 Toolchain overview
 Introduction
 ----------------------------
 
-**Pulsar2** is an ``all-in-one`` new generation neural network compiler **independently developed** by `Aixin Yuanzhi <https://www.axera-tech.com/>`_, 
+**Pulsar2** is an ``all-in-one`` new generation neural network compiler **independently developed** by `AXera <https://www.axera-tech.com/>`_, 
 That is, **conversion**, **quantification**, **compilation**, and **heterogeneous** are four-in-one to achieve the **fast** and **efficient** deployment requirements of deep learning neural network models. 
 In-depth customization and optimization have been carried out for the characteristics of the new generation of `AX6 and M7` series chips (AX630C, AX620AV200, AX620Q, AX650A, AX650N, M76H), giving full play to the computing power of the on-chip heterogeneous computing unit (CPU+NPU) to improve the performance of the neural network model. Product deployment efficiency.
 

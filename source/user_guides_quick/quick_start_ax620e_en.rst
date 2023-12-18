@@ -224,8 +224,8 @@ Configuration file description
       }
     }
 
-..attention::
-
+.. attention::
+  
      The ``tensor_name`` field in ``input_configs`` under the ``input_processors``, ``output_processors`` and ``quant`` nodes needs to be set according to the actual input/output node name of the model, or it can be set to ` `DEFAULT` means that the current configuration applies to all inputs or outputs.
 
      .. figure:: ../media/tensor_name.png

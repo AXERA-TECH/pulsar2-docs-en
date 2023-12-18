@@ -221,7 +221,7 @@ Configuration file description
 
 .. attention::
 
-    ``input_processors``, ``output_processors`` 及 ``quant`` 节点下 ``input_configs`` 中的 ``tensor_name`` 字段需要根据模型的实际输入/输出节点名称进行设置，也可以设置为 ``DEFAULT`` 代表当前配置应用于全部输入或者输出。
+    The ``tensor_name`` field in ``input_configs`` under the ``input_processors``, ``output_processors`` and ``quant`` nodes needs to be set according to the actual input/output node name of the model, or it can be set to ` `DEFAULT` means that the current configuration applies to all inputs or outputs.
 
     .. figure:: ../media/tensor_name.png
         :alt: pipeline

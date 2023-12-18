@@ -15,7 +15,7 @@ This section will provide code examples for running the ``axmodel`` model compil
 Method of obtaining
 ~~~~~~~~~~~~~~~~~~~~
 
-- :download:`click download <../examples/ax-samples.zip>`
+- :download:`click download <https://github.com/AXERA-TECH/pulsar2-docs/releases/download/v1.9/ax-samples.zip>`
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Introduction of ax-samples 
@@ -35,9 +35,9 @@ Currently ``ax-samples`` has been verified but is not limited to the following o
   
 Verified hardware platform
 
--AX650
--M76H
--AX620E
+- AX650
+- M76H
+- AX620E
 
 ``ax-samples`` directory description
 

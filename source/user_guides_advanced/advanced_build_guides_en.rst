@@ -381,7 +381,7 @@ NPU dual core mode
 
     {
       "model_type": "ONNX",
-      "npu_mode": "NPU2",   # 只需要修改这里，默认配置是 NPU1
+      "npu_mode": "NPU2",   # Just change it here, default is NPU1
       "quant": {
         "input_configs": [
           {
@@ -530,7 +530,7 @@ Detailed explanation layer by layer
           }
         ],
         "calibration_method": "MinMax",
-        "precision_analysis": true  # 这里修改为 true, 默认是 false
+        "precision_analysis": true  # change here is true, default is false
       },
       "input_processors": [
         {
