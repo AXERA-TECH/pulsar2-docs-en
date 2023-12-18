@@ -1,3 +1,5 @@
 # Pulsar2 User Manual
 
-[Web Review](pulsar2-docs-en.readthedocs.io)
+[Web Review](https://pulsar2-docs.readthedocs.io/en/latest/)
+
+
