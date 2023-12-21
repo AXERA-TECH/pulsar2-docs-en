@@ -490,7 +490,7 @@ If the model contains the ``Reshape`` operator, ``pulsar2`` may not be able to c
 
 At this time, the user can modify the ``shape`` input data of the ``Reshape`` operator through the :ref:`《Constant Data Modification》<Const_patch_en>` function, so that ``pulsar2`` can be correct during the multi-batch compilation process. Derive the output shape.
 
-For example, there is a ``Reshape`` operator with a shape of ``[2, 1, 64]``. Assuming that the first dimension is batch, the constant tensor corresponding to the shape is modified to ``[ through the constant data modification function. 2, -1, 64]`` or ``[2, 0, 64]`` to support multi-batch compilation.
+For example, there is a ``Reshape`` operator with a shape of ``[2, 1, 64]``. Assuming that the first dimension is batch, through the constant data modification function. the constant tensor corresponding to the shape is modified to ``[2, -1, 64]`` or ``[2, 0, 64]`` to support multi-batch compilation.
 
 In addition, if the user does not explicitly configure the operator attribute modification, then ``pulsar2`` will modify the 0th dimension of the ``Reshape`` operator**shape to -1, and try to perform multi-batch compilation**.
 
