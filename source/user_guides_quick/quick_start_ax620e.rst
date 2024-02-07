@@ -5,7 +5,6 @@ Quick Start(AX620E)
 **This chapter applies to the following platforms:**
 
 - AX630C
-- AX620AV200
 - AX620Q
 
 This chapter will introduce in order:
@@ -59,8 +58,8 @@ Taking the system version ``Ubuntu 20.04`` and the tool chain ``ax_pulsar2_${ver
 
 How to obtain the tool chain:
 
-- `BaiDu Pan <https://pan.baidu.com/s/1_aeGILGZCAmFrWrRXhwgKg?pwd=pmj8>`_
-- `Google Drive <https://drive.google.com/file/d/1-NW7ExBXj5-nTha40iwYshjNJb74Zfer/view?usp=drive_link>`_
+- `BaiDu Pan <https://pan.baidu.com/s/1FazlPdW79wQWVY-Qn--qVQ?pwd=sbru>`_
+- `Google Drive <https://drive.google.com/drive/folders/1gJFkHw2gyW-7B9xTdpH_w72Ly2PQ7nsi?usp=drive_link>`_
 
 ^^^^^^^^^^^^^^^^^^^^^^^
 Load Docker Image
