@@ -32,3 +32,5 @@ AXera Pulsar2 Toolchain Instructions Manual
   appendix/op_support_list.rst
   appendix/op_support_list_ax620e.rst
   appendix/precision_debug_guides.rst
+  appendix/build_llm.rst
+  
