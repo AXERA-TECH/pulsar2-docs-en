@@ -59,7 +59,7 @@ Taking the system version ``Ubuntu 20.04`` and the tool chain ``ax_pulsar2_${ver
 How to obtain the tool chain:
 
 - `BaiDu Pan <https://pan.baidu.com/s/1FazlPdW79wQWVY-Qn--qVQ?pwd=sbru>`_
-- `Google Drive <https://drive.google.com/drive/folders/1gJFkHw2gyW-7B9xTdpH_w72Ly2PQ7nsi?usp=drive_link>`_
+- `Google Drive <https://drive.google.com/drive/folders/10rfQIAm5ktjJ1bRMsHbUanbAplIn3ium?usp=sharing>`_
 
 ^^^^^^^^^^^^^^^^^^^^^^^
 Load Docker Image
