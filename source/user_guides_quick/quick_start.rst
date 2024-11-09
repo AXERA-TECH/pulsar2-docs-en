@@ -1,6 +1,12 @@
 ======================
-Quick Start
+Quick Start(AX650)
 ======================
+
+**This section applies to the following platforms:**
+
+- AX650A
+- AX650N
+- M76H
 
 This chapter will introduce:
 
