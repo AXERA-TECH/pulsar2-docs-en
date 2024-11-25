@@ -1,11 +1,12 @@
 ======================
-Quick Start(AX620E)
+Quick Start(AX650)
 ======================
 
 **This section applies to the following platforms:**
 
-- AX630C
-- AX620Q
+- AX650A
+- AX650N
+- M76H
 
 This section introduces the basic operations of ``ONNX`` model conversion, and uses the ``pulsar2`` tool to compile the ``ONNX`` model into the ``axmodel`` model. Please refer to the :ref:`《Development Environment Preparation》 <dev_env_prepare>` section to complete the development environment setup.
 The example model in this section is the open source model ``MobileNetv2``.
@@ -80,7 +81,7 @@ Model compilation configuration file description
 
 For more details, please refer to :ref:`Configuration File Detailed Description <config_details>`.
 
-.. _model_compile_20e:
+.. _model_compile:
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Compile and execute
@@ -90,7 +91,7 @@ Take ``mobilenetv2-sim.onnx`` as an example, execute the following ``pulsar2 bui
 
 .. code-block:: shell
 
-    pulsar2 build --target_hardware AX620E --input model/mobilenetv2-sim.onnx --output_dir output --config config/mobilenet_v2_build_config.json
+    pulsar2 build  --target_hardware AX650 --input model/mobilenetv2-sim.onnx --output_dir output --config config/mobilenet_v2_build_config.json
 
 .. warning::
 
@@ -101,42 +102,84 @@ Take ``mobilenetv2-sim.onnx`` as an example, execute the following ``pulsar2 bui
 
     If you want to learn more about ``onnxsim``, you can visit the `official website <https://github.com/daquexian/onnx-simplifier>`_.
 
-^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 log reference information
-^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block::
 
-    $ pulsar2 build --target_hardware AX620E --input model/mobilenetv2-sim.onnx --output_dir output --config config/mobilenet_v2_build_config.json
-    2023-07-29 14:23:01.757 | WARNING  | yamain.command.build:fill_default:313 - ignore input csc config because of src_format is AutoColorSpace or src_format and tensor_format are the same
+    2024-09-25 11:45:26.533 | WARNING  | yamain.command.build:fill_default:300 - apply default output processor configuration to ['output']
+    2024-09-25 11:45:26.533 | WARNING  | yamain.command.build:fill_default:364 - ignore input csc config because of src_format is AutoColorSpace or src_format and tensor_format are the same
+    2024-09-25 11:45:26.534 | INFO     | yamain.common.util:extract_archive:181 - extract [dataset/imagenet-32-images.tar] to [output/quant/dataset/input]...
+    32 File(s) Loaded.
     Building onnx ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:00
-    2023-07-29 14:23:07.806 | INFO     | yamain.command.build:build:424 - save optimized onnx to [output/frontend/optimized.onnx]
-    patool: Extracting ./dataset/imagenet-32-images.tar ...
-    patool: running /usr/bin/tar --extract --file ./dataset/imagenet-32-images.tar --directory output/quant/dataset/input
-    patool: ... ./dataset/imagenet-32-images.tar extracted to `output/quant/dataset/input'.
-                                                                            Quant Config Table
-    ┏━━━━━━━┳━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━┓
-    ┃ Input ┃ Shape            ┃ Dataset Directory ┃ Data Format ┃ Tensor Format ┃ Mean                                                         ┃ Std                ┃
-    ┡━━━━━━━╇━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━┩
-    │ input │ [1, 3, 224, 224] │ input             │ Image       │ BGR           │ [103.93900299072266, 116.77899932861328, 123.68000030517578] │ [58.0, 58.0, 58.0] │
-    └───────┴──────────────────┴───────────────────┴─────────────┴───────────────┴──────────────────────────────────────────────────────────────┴────────────────────┘
+    2024-09-25 11:45:27.422 | INFO     | yamain.command.build:quant:797 - save optimized onnx to [output/frontend/optimized.onnx]
+                                   Quant Config Table                               
+    ┏━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━┓
+    ┃       ┃           ┃ Dataset   ┃ Data      ┃ Tensor    ┃           ┃          ┃
+    ┃ Input ┃ Shape     ┃ Directory ┃ Format    ┃ Format    ┃ Mean      ┃ Std      ┃
+    ┡━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━┩
+    │ input │ [1, 3,    │ output/q… │ Image     │ BGR       │ [103.939… │ [58.0,   │
+    │       │ 224, 224] │           │           │           │ 116.7789… │ 58.0,    │
+    │       │           │           │           │           │ 123.6800… │ 58.0]    │
+    └───────┴───────────┴───────────┴───────────┴───────────┴───────────┴──────────┘
     Transformer optimize level: 0
     32 File(s) Loaded.
-    [14:23:09] AX LSTM Operation Format Pass Running ...      Finished.
-    [14:23:09] AX Set MixPrecision Pass Running ...           Finished.
-    [14:23:09] AX Refine Operation Config Pass Running ...    Finished.
-    [14:23:09] AX Reset Mul Config Pass Running ...           Finished.
-    [14:23:09] AX Tanh Operation Format Pass Running ...      Finished.
-    [14:23:09] AX Confused Op Refine Pass Running ...         Finished.
-    [14:23:09] AX Quantization Fusion Pass Running ...        Finished.
-    [14:23:09] AX Quantization Simplify Pass Running ...      Finished.
-    [14:23:09] AX Parameter Quantization Pass Running ...     Finished.
-    Calibration Progress(Phase 1): 100%|████████████████████████████████████████████████████████████████████████████████████████████████████| 32/32 [00:01<00:00, 18.07it/s]
-    Finished.
-    [14:23:11] AX Passive Parameter Quantization Running ...  Finished.
-    [14:23:11] AX Parameter Baking Pass Running ...           Finished.
-    [14:23:11] AX Refine Int Parameter Pass Running ...       Finished.
-    [14:23:11] AX Refine Weight Parameter Pass Running ...    Finished.
+    
+    Stastic Inf tensor:   0%|          | 0/1 [00:00<?, ?it/s]
+    Stastic Inf tensor: 100%|██████████| 1/1 [00:00<00:00,  9.09it/s]
+    Stastic Inf tensor: 100%|██████████| 1/1 [00:00<00:00,  9.06it/s]
+    [11:45:28] AX Set Float Op Table Pass Running ...         
+    [11:45:28] AX Set MixPrecision Pass Running ...           
+    [11:45:28] AX Set LN Quant dtype Quant Pass Running ...   
+    [11:45:28] AX Reset Mul Config Pass Running ...           
+    [11:45:28] AX Refine Operation Config Pass Running ...    
+    [11:45:28] AX Tanh Operation Format Pass Running ...      
+    [11:45:28] AX Confused Op Refine Pass Running ...         
+    [11:45:28] AX Quantization Fusion Pass Running ...        
+    [11:45:28] AX Quantization Simplify Pass Running ...      
+    [11:45:28] AX Parameter Quantization Pass Running ...     
+    [11:45:29] AX Runtime Calibration Pass Running ...        
+    
+    Calibration Progress(Phase 1):   0%|          | 0/32 [00:00<?, ?it/s]
+    Calibration Progress(Phase 1):   3%|▎         | 1/32 [00:00<00:03,  9.10it/s]
+    Calibration Progress(Phase 1):   6%|▋         | 2/32 [00:00<00:03,  9.09it/s]
+    Calibration Progress(Phase 1):   9%|▉         | 3/32 [00:00<00:03,  9.05it/s]
+    Calibration Progress(Phase 1):  12%|█▎        | 4/32 [00:00<00:03,  9.02it/s]
+    Calibration Progress(Phase 1):  16%|█▌        | 5/32 [00:00<00:02,  9.00it/s]
+    Calibration Progress(Phase 1):  19%|█▉        | 6/32 [00:00<00:02,  8.96it/s]
+    Calibration Progress(Phase 1):  22%|██▏       | 7/32 [00:00<00:02,  9.03it/s]
+    Calibration Progress(Phase 1):  25%|██▌       | 8/32 [00:00<00:02,  9.03it/s]
+    Calibration Progress(Phase 1):  28%|██▊       | 9/32 [00:00<00:02,  9.03it/s]
+    Calibration Progress(Phase 1):  31%|███▏      | 10/32 [00:01<00:02,  9.02it/s]
+    Calibration Progress(Phase 1):  34%|███▍      | 11/32 [00:01<00:02,  9.00it/s]
+    Calibration Progress(Phase 1):  38%|███▊      | 12/32 [00:01<00:02,  8.94it/s]
+    Calibration Progress(Phase 1):  41%|████      | 13/32 [00:01<00:02,  8.95it/s]
+    Calibration Progress(Phase 1):  44%|████▍     | 14/32 [00:01<00:02,  8.96it/s]
+    Calibration Progress(Phase 1):  47%|████▋     | 15/32 [00:01<00:01,  8.92it/s]
+    Calibration Progress(Phase 1):  50%|█████     | 16/32 [00:01<00:01,  8.89it/s]
+    Calibration Progress(Phase 1):  53%|█████▎    | 17/32 [00:01<00:01,  8.90it/s]
+    Calibration Progress(Phase 1):  56%|█████▋    | 18/32 [00:02<00:01,  8.89it/s]
+    Calibration Progress(Phase 1):  59%|█████▉    | 19/32 [00:02<00:01,  8.86it/s]
+    Calibration Progress(Phase 1):  62%|██████▎   | 20/32 [00:02<00:01,  8.93it/s]
+    Calibration Progress(Phase 1):  66%|██████▌   | 21/32 [00:02<00:01,  8.90it/s]
+    Calibration Progress(Phase 1):  69%|██████▉   | 22/32 [00:02<00:01,  8.93it/s]
+    Calibration Progress(Phase 1):  72%|███████▏  | 23/32 [00:02<00:01,  8.91it/s]
+    Calibration Progress(Phase 1):  75%|███████▌  | 24/32 [00:02<00:00,  8.89it/s]
+    Calibration Progress(Phase 1):  78%|███████▊  | 25/32 [00:02<00:00,  8.91it/s]
+    Calibration Progress(Phase 1):  81%|████████▏ | 26/32 [00:02<00:00,  8.87it/s]
+    Calibration Progress(Phase 1):  84%|████████▍ | 27/32 [00:03<00:00,  8.89it/s]
+    Calibration Progress(Phase 1):  88%|████████▊ | 28/32 [00:03<00:00,  8.91it/s]
+    Calibration Progress(Phase 1):  91%|█████████ | 29/32 [00:03<00:00,  8.86it/s]
+    Calibration Progress(Phase 1):  94%|█████████▍| 30/32 [00:03<00:00,  8.85it/s]
+    Calibration Progress(Phase 1):  97%|█████████▋| 31/32 [00:03<00:00,  8.77it/s]
+    Calibration Progress(Phase 1): 100%|██████████| 32/32 [00:03<00:00,  8.74it/s]
+    Calibration Progress(Phase 1): 100%|██████████| 32/32 [00:03<00:00,  8.91it/s]
+    [11:45:32] AX Quantization Alignment Pass Running ...     
+    [11:45:32] AX Refine Int Parameter Pass Running ...       
+    [11:45:33] AX Refine Scale Pass Running ...               
+    [11:45:33] AX Passive Parameter Quantization Running ...  
+    [11:45:33] AX Parameter Baking Pass Running ...           
     --------- Network Snapshot ---------
     Num of Op:                    [100]
     Num of Quantized Op:          [100]
@@ -151,34 +194,41 @@ log reference information
     PASSIVE_BAKED:                [53]
     FP32:                         [70]
     Network Quantization Finished.
-    [Warning]File output/quant/quant_axmodel.onnx has already exist, quant exporter will overwrite it.
-    [Warning]File output/quant/quant_axmodel.json has already exist, quant exporter will overwrite it.
-    quant.axmodel export success: output/quant/quant_axmodel.onnx
+    quant.axmodel export success: 
+    	/data/deploy/data/quick_start_example/output/quant/quant_axmodel.onnx
+    	/data/deploy/data/quick_start_example/output/quant/quant_axmodel.data
+    ===>export pb data to folder: output/quant/debug/test_data_set_0
+    ===>export io data to folder: output/quant/debug/io
     Building native ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:00
-    2023-07-29 14:23:18.332 | WARNING  | yamain.command.load_model:pre_process:454 - preprocess tensor [input]
-    2023-07-29 14:23:18.332 | INFO     | yamain.command.load_model:pre_process:456 - tensor: input, (1, 224, 224, 3), U8
-    2023-07-29 14:23:18.332 | INFO     | yamain.command.load_model:pre_process:459 - op: op:pre_dequant_1, AxDequantizeLinear, {'const_inputs': {'x_zeropoint': 0, 'x_scale': 1}, 'output_dtype': <class 'numpy.float32'>, 'quant_method': 0}
-    2023-07-29 14:23:18.332 | INFO     | yamain.command.load_model:pre_process:456 - tensor: tensor:pre_norm_1, (1, 224, 224, 3), FP32
-    2023-07-29 14:23:18.332 | INFO     | yamain.command.load_model:pre_process:459 - op: op:pre_norm_1, AxNormalize, {'dim': 3, 'mean': [103.93900299072266, 116.77899932861328, 123.68000030517578], 'std': [58.0, 58.0, 58.0]}
-    2023-07-29 14:23:18.332 | INFO     | yamain.command.load_model:pre_process:456 - tensor: tensor:pre_transpose_1, (1, 224, 224, 3), FP32
-    2023-07-29 14:23:18.332 | INFO     | yamain.command.load_model:pre_process:459 - op: op:pre_transpose_1, AxTranspose, {'perm': [0, 3, 1, 2]}
-    tiling op...   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 174/174 0:00:00
+    2024-09-25 11:45:33.944 | INFO     | yamain.command.build:compile_ptq_model:1035 - group 0 compiler transformation
+    2024-09-25 11:45:33.946 | WARNING  | yamain.command.load_model:pre_process:608 - preprocess tensor [input]
+    2024-09-25 11:45:33.946 | INFO     | yamain.command.load_model:pre_process:609 - tensor: input, (1, 224, 224, 3), U8
+    2024-09-25 11:45:33.947 | INFO     | yamain.command.load_model:pre_process:609 - op: op:pre_dequant_1, AxDequantizeLinear, {'const_inputs': {'x_zeropoint': array(0, dtype=int32), 'x_scale': array(1., dtype=float32)}, 'output_dtype': <class 'numpy.float32'>, 'quant_method': 0}
+    2024-09-25 11:45:33.947 | INFO     | yamain.command.load_model:pre_process:609 - tensor: tensor:pre_norm_1, (1, 224, 224, 3), FP32
+    2024-09-25 11:45:33.947 | INFO     | yamain.command.load_model:pre_process:609 - op: op:pre_norm_1, AxNormalize, {'dim': 3, 'mean': [103.93900299072266, 116.77899932861328, 123.68000030517578], 'std': [58.0, 58.0, 58.0], 'output_dtype': FP32}
+    2024-09-25 11:45:33.947 | INFO     | yamain.command.load_model:pre_process:609 - tensor: tensor:pre_transpose_1, (1, 224, 224, 3), FP32
+    2024-09-25 11:45:33.947 | INFO     | yamain.command.load_model:pre_process:609 - op: op:pre_transpose_1, AxTranspose, {'perm': [0, 3, 1, 2]}
+    2024-09-25 11:45:33.947 | WARNING  | yamain.command.load_model:post_process:630 - postprocess tensor [output]
+    2024-09-25 11:45:34.159 | INFO     | yamain.command.build:compile_ptq_model:1060 - QuantAxModel macs: 280,262,480
+    2024-09-25 11:45:34.169 | INFO     | yamain.command.build:compile_ptq_model:1132 - subgraph [0], group: 0, type: GraphType.NPU
+    2024-09-25 11:45:34.187 | INFO     | yasched.test_onepass:test_onepass_ir:3221 - schedule npu subgraph [0]
+    tiling op...   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 68/68 0:00:00
+    <frozen backend.ax650npu.oprimpl.normalize>:186: RuntimeWarning: divide by zero encountered in divide
+    <frozen backend.ax650npu.oprimpl.normalize>:187: RuntimeWarning: invalid value encountered in divide
     new_ddr_tensor = []
-    build op...   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 440/440 0:00:00
-    add ddr swap...   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1606/1606 0:00:00
-    calc input dependencies...   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2279/2279 0:00:00
-    calc output dependencies...   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2279/2279 0:00:00
-    assign eu heuristic   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2279/2279 0:00:00
-    assign eu onepass   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2279/2279 0:00:00
-    assign eu greedy   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2279/2279 0:00:00
-    2023-07-29 14:23:21.762 | INFO     | yasched.test_onepass:results2model:1882 - max_cycle = 782,940
-    2023-07-29 14:23:22.159 | INFO     | yamain.command.build:compile_npu_subgraph:1004 - QuantAxModel macs: 280,262,480
-    2023-07-29 14:23:25.209 | INFO     | backend.ax620e.linker:link_with_dispatcher:1586 - DispatcherQueueType.IO: Generate 69 EU chunks, 7 Dispatcher Chunk
-    2023-07-29 14:23:25.209 | INFO     | backend.ax620e.linker:link_with_dispatcher:1586 - DispatcherQueueType.Compute: Generate 161 EU chunks, 23 Dispatcher Chunk
-    2023-07-29 14:23:25.209 | INFO     | backend.ax620e.linker:link_with_dispatcher:1587 - EU mcode size: 147 KiB
-    2023-07-29 14:23:25.209 | INFO     | backend.ax620e.linker:link_with_dispatcher:1588 - Dispatcher mcode size: 21 KiB
-    2023-07-29 14:23:25.209 | INFO     | backend.ax620e.linker:link_with_dispatcher:1589 - Total mcode size: 168 KiB
-    2023-07-29 14:23:26.928 | INFO     | yamain.command.build:compile_ptq_model:940 - fuse 1 subgraph(s)
+    build op serially...   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 103/103 0:00:00
+    build op...   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 188/188 0:00:00
+    add ddr swap...   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 497/497 0:00:00
+    calc input dependencies...   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 921/921 0:00:00
+    calc output dependencies...   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 921/921 0:00:00
+    assign eu heuristic   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 921/921 0:00:00
+    assign eu onepass   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 921/921 0:00:00
+    assign eu greedy   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 921/921 0:00:00
+    2024-09-25 11:45:36.467 | INFO     | yasched.test_onepass:results2model:2541 - clear job deps
+    2024-09-25 11:45:36.467 | INFO     | yasched.test_onepass:results2model:2542 - max_cycle = 450,154
+    build jobs   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 921/921 0:00:00
+    2024-09-25 11:45:36.796 | INFO     | yamain.command.build:compile_npu_subgraph:1332 - assembel model [subgraph_npu_0]
+    2024-09-25 11:45:38.075 | INFO     | yamain.command.build:compile_ptq_model:1142 - fuse 1 subgraph(s)
 
 .. note::
 
@@ -188,7 +238,6 @@ log reference information
         - Memory 32G
 
     The whole process takes about ``11s``, and the host conversion time varies slightly with different configurations.
-
 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Model compilation output file description
@@ -223,9 +272,9 @@ Model compilation output file description
         :alt: pipeline
         :align: center
 
-------------------------
+--------------------------
 Model information query
-------------------------
+--------------------------
 
 By using ``onnx inspect --io ${axmodel/onnx_path}`` to view the input and output information of compiled ``axmodel``, and other parameter ``-m -n -t`` to view model's information of ``meta / node / tensor`` 
 
@@ -239,37 +288,40 @@ By using ``onnx inspect --io ${axmodel/onnx_path}`` to view the input and output
       Graph inputs: 1
       Graph outputs: 1
       Nodes in total: 1
-      ValueInfo in total: 2
+      ValueInfo in total: 4
       Initializers in total: 2
       Sparse Initializers in total: 0
       Quantization in total: 0
-
+    
     Meta information:
     --------------------------------------------------------------------------------
-      IR Version: 7
-      Opset Import: [version: 13
+      IR Version: 8
+      Opset Import: [domain: ""
+    version: 16
     ]
       Producer name: Pulsar2
-      Producer version:
-      Domain:
-      Doc string: Pulsar2 Version:  1.8-beta1
-    Pulsar2 Commit: 6a7e59de
-      meta.{} = {} extra_data CgsKBWlucHV0EAEYAgoICgZvdXRwdXQSATEaMgoFbnB1XzBSKQoNbnB1XzBfYjFfZGF0YRABGhYKBnBhcmFtcxoMbnB1XzBfcGFyYW1zIgAoAQ==
-
+      Producer version: 
+      Domain: 
+      Doc string: Pulsar2 Version:  2.4
+    Pulsar2 Commit: 2064a8ee
+      meta.{} = {} extra_data CgsKBWlucHV0EAEYAgoICgZvdXRwdXQSATEaQQoOc3ViZ3JhcGhfbnB1XzBSLwoVc3ViZ3JhcGhfbnB1XzBfYjFfbmV1EAEaFAoGcGFyYW1zGgpucHVfcGFyYW1zIgA=
+    
     Node information:
     --------------------------------------------------------------------------------
       Node type "neu mode" has: 1
     --------------------------------------------------------------------------------
-      Node "npu_0": type "neu mode", inputs "['input']", outputs "['output']"
-
+      Node "subgraph_npu_0": type "neu mode", inputs "['input']", outputs "['output']"
+    
     Tensor information:
     --------------------------------------------------------------------------------
       ValueInfo "input": type UINT8, shape [1, 224, 224, 3],
+      ValueInfo "npu_params": type UINT8, shape [4085516],
+      ValueInfo "subgraph_npu_0_b1_neu": type UINT8, shape [56592],
       ValueInfo "output": type FLOAT, shape [1, 1000],
-      Initializer "npu_0_params": type UINT8, shape [3740416],
-      Initializer "npu_0_b1_data": type UINT8, shape [173256],
+      Initializer "npu_params": type UINT8, shape [4085516],
+      Initializer "subgraph_npu_0_b1_neu": type UINT8, shape [56592],
 
-.. _model_simulator_20e:
+.. _model_simulator:
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Simulation Run
@@ -277,9 +329,9 @@ Simulation Run
 
 This chapter introduces the basic operations of ``axmodel`` simulation. The ``pulsar2 run`` command can be used to run the ``axmodel`` model generated by ``pulsar2 build`` directly on the ``PC``. The running results of the network model can be quickly obtained without running on the board.
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Simulation run preparation
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Some models can only support specific input data formats, and the output data of the model is also output in a module-specific format. Before the model simulation is run, the input data needs to be converted into a data format supported by the model. This part of the data operation is called ``pre-processing``. After the model simulation is run, the output data needs to be converted into a data format that can be analyzed and viewed by the tool. This part of the data operation is called ``post-processing``. The ``pre-processing`` and ``post-processing`` tools required for the simulation run are already included in the ``pulsar2-run-helper`` folder.
 
@@ -303,15 +355,15 @@ Some models can only support specific input data formats, and the output data of
 Simulation run example ``mobilenetv2``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Copy the ``compiled.axmodel`` generated in the :ref:`《Compile and Execute》 <model_compile_20e>` section to the ``pulsar2-run-helper/models`` path and rename it to ``mobilenetv2.axmodel``
+Copy the ``compiled.axmodel`` generated in the :ref:`《Compile and Execute》 <model_compile>` section to the ``pulsar2-run-helper/models`` path and rename it to ``mobilenetv2.axmodel``
 
 .. code-block:: shell
 
     root@xxx:/data# cp output/compiled.axmodel pulsar2-run-helper/models/mobilenetv2.axmodel
 
-----------------------------------------
+----------------------
 Input data preparation
-----------------------------------------
+----------------------
 
 Enter the ``pulsar2-run-helper`` directory and use the ``cli_classification.py`` script to process ``cat.jpg`` into the input data format required by ``mobilenetv2.axmodel``.
 
@@ -345,13 +397,13 @@ Use the ``cli_classification.py`` script to post-process the ``output.bin`` data
 
     root@xxx:/data/pulsar2-run-helper# python3 cli_classification.py --post_processing --axmodel_path models/mobilenetv2.axmodel --intermediate_path sim_outputs/0
     [I] The following are the predicted score index pair.
-    [I] 9.1132, 285
-    [I] 8.8490, 281
-    [I] 8.7169, 282
-    [I] 8.0566, 283
-    [I] 6.8679, 463
+    [I] 9.5094, 285
+    [I] 9.3773, 282
+    [I] 9.2452, 281
+    [I] 8.5849, 283
+    [I] 7.6603, 287
 
-.. _onboard_running_20e:
+.. _onboard_running:
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Development board running
@@ -375,21 +427,22 @@ Copy ``mobilenetv2.axmodel`` to the development board and execute the following 
 
 .. code-block:: shell
 
-    /root # ax_run_model -m /opt/data/npu/models/mobilenetv2.axmodel -w 3 -r 10
+    /root # ax_run_model -m mobilenetv2.axmodel -w 3 -r 10
       Run AxModel:
-            model: /opt/data/npu/models/mobilenetv2.axmodel
-             type: Half
+            model: mobilenetv2.axmodel
+             type: 1 Core
              vnpu: Disable
-         affinity: 0b01
+         affinity: 0b001
            warmup: 3
            repeat: 10
-            batch: { auto: 0 }
-      pulsar2 ver: 1.8-beta1 6a7e59de
-       engine ver: 2.6.3sp
-         tool ver: 2.3.3sp
-         cmm size: 4414192 Bytes
+            batch: { auto: 1 }
+         parallel: false
+      pulsar2 ver: 1.2-patch2 7e6b2b5f
+       engine ver: 2.3.0a
+         tool ver: 2.1.2c
+         cmm size: 4428624 Bytes
       ------------------------------------------------------
-      min =   1.093 ms   max =   1.098 ms   avg =   1.096 ms
+      min =   0.719 ms   max =   0.726 ms   avg =   0.721 ms
       ------------------------------------------------------
 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -417,7 +470,7 @@ By executing the ``sample_npu_classification`` program, the classification model
 
 .. code-block:: shell
 
-    /root # sample_npu_classification -m mobilenetv2.axmodel -i /opt/data/npu/images/cat.jpg -r 100
+    /root # sample_npu_classification -m mobilenetv2.axmodel -i /opt/data/npu/images/cat.jpg -r 10
     --------------------------------------
     model file : mobilenetv2.axmodel
     image file : /opt/data/npu/images/cat.jpg
@@ -429,15 +482,15 @@ By executing the ``sample_npu_classification`` program, the classification model
     Engine alloc io is done.
     Engine push input is done.
     --------------------------------------
-    topk cost time:0.10 ms
-    9.1132, 285
-    8.8490, 281
-    8.7169, 282
-    8.0566, 283
-    6.8679, 463
+    topk cost time:0.07 ms
+    9.5094, 285
+    9.3773, 282
+    9.2452, 281
+    8.5849, 283
+    7.6603, 287
     --------------------------------------
-    Repeat 100 times, avg time 1.09 ms, max_time 1.10 ms, min_time 1.09 ms
+    Repeat 10 times, avg time 0.72 ms, max_time 0.72 ms, min_time 0.72 ms
     --------------------------------------
 
-- From here, we can see that the results of running the same ``mobilenetv2.axmodel`` model on the development board are consistent with the results of :ref:`《Simulation Run》 <model_simulator_20e>`;
+- From here, we can see that the results of running the same ``mobilenetv2.axmodel`` model on the development board are consistent with the results of :ref:`《Simulation Run》 <model_simulator>`;
 - For details on the source code and compilation generation of the executable program ``ax_classification`` on the board, please refer to :ref:`《Model Deployment Advanced Guide》 <model_deploy_advanced>`.

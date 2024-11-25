@@ -1,8 +1,8 @@
 ==================================
-NPU Operators support list
+NPU Operators support list (AX650)
 ==================================
 
-This section introduces the **NPU** supports for the ``ONNX`` operator in ``AX630C`` ``AX620AV200`` ``AX620Q``.
+This section introduces the **NPU** supports for the ``ONNX`` operator in ``AX650`` ``M76H``.
 
 - Supported ONNX opset_version >= 11. For detailed operator description, please refer to `onnx Operators <https://github.com/onnx/onnx/blob/main/docs/Operators.md>`_ .
 - Some of the supported operators do not have standard ONNX definitions yet. If such operators are included in the model, please consult technical support.
@@ -18,6 +18,8 @@ This section introduces the **NPU** supports for the ``ONNX`` operator in ``AX63
 | Abs                   | Unlimited                                   |
 +-----------------------+---------------------------------------------+
 | Add                   | Unlimited                                   |
++-----------------------+---------------------------------------------+
+| And                   | Unlimited                                   |
 +-----------------------+---------------------------------------------+
 | ArgMax                | | axis: Unlimited                           |
 |                       | | keepdims: Unlimited                       |
@@ -80,6 +82,8 @@ This section introduces the **NPU** supports for the ``ONNX`` operator in ``AX63
 |                       | pads_bottom, output_padding_w <=            |
 |                       | pads_right                                  |
 +-----------------------+---------------------------------------------+
+| Cos                   | Unlimited                                   |
++-----------------------+---------------------------------------------+
 | DepthToSpace          | | blocksize: Unlimited                      |
 |                       | | mode:  currently Only supports DCR        |
 +-----------------------+---------------------------------------------+
@@ -97,9 +101,15 @@ This section introduces the **NPU** supports for the ``ONNX`` operator in ``AX63
 +-----------------------+---------------------------------------------+
 | Flatten               | Unlimited                                   |
 +-----------------------+---------------------------------------------+
+| Floor                 | Unlimited                                   |
++-----------------------+---------------------------------------------+
 | Gather                | | axis: Unlimited                           |
 |                       | | indices:  currently Only supports 1       |
 |                       | |           dimension                       |
++-----------------------+---------------------------------------------+
+| GatherElements        | | axis: Unlimited                           |
++-----------------------+---------------------------------------------+
+| GatherND              |   Unlimited                                 |
 +-----------------------+---------------------------------------------+
 | Gelu                  | Unlimited                                   |
 +-----------------------+---------------------------------------------+
@@ -116,6 +126,10 @@ This section introduces the **NPU** supports for the ``ONNX`` operator in ``AX63
 +-----------------------+---------------------------------------------+
 | GreaterOrEqual        | Unlimited                                   |
 +-----------------------+---------------------------------------------+
+| GridSample            | Unlimited                                   |
++-----------------------+---------------------------------------------+
+| GroupNormalization    | Unlimited                                   |
++-----------------------+---------------------------------------------+
 | HardSigmoid           | Unlimited                                   |
 +-----------------------+---------------------------------------------+
 | HardSwish             | Unlimited                                   |
@@ -124,8 +138,12 @@ This section introduces the **NPU** supports for the ``ONNX`` operator in ``AX63
 +-----------------------+---------------------------------------------+
 | InstanceNormalization | epsilon:Unlimited                           |
 +-----------------------+---------------------------------------------+
+| InverseSigmoid        | Unlimited                                   |
++-----------------------+---------------------------------------------+
 | LayerNormalization    | axis Only supports -1                       |
 |                       | (i.e. the last dimension)                   |
++-----------------------+---------------------------------------------+
+| LeakyRelu             | Unlimited                                   |
 +-----------------------+---------------------------------------------+
 | Less                  | Unlimited                                   |
 +-----------------------+---------------------------------------------+
@@ -150,30 +168,27 @@ This section introduces the **NPU** supports for the ``ONNX`` operator in ``AX63
 |                       | direction:                                  |
 |                       | Supports "bidirectional","reverse","forward"|
 +-----------------------+---------------------------------------------+
-| LeakyRelu             | Unlimited                                   |
+| LogSoftmax            | Unlimited                                   |
 +-----------------------+---------------------------------------------+
 | MatMul                | Unlimited                                   |
 +-----------------------+---------------------------------------------+
 | Max                   | Unlimited                                   |
 +-----------------------+---------------------------------------------+
+| MaxPool               | | auto_pad: only setting to NOTSET          |
+|                       | | ceil_mode: Unlimited                      |
+|                       | | dilations: only support 1                 |
+|                       | | kernel_shape: Unlimited                   |
+|                       | | pads: Unlimited                           |
+|                       | | storage_order: only setting to 0          |
+|                       | | strides: Unlimited                        |
++-----------------------+---------------------------------------------+
 | Min                   | Unlimited                                   |
 +-----------------------+---------------------------------------------+
 | Mish                  | Unlimited                                   |
 +-----------------------+---------------------------------------------+
-| MaxPool               | | auto_pad: Only supports setting to NOTSET |
-|                       | | ceil_mode: Unlimited                      |
-|                       | | dilations: Only supports 为1              |
-|                       | | kernel_shape: Unlimited                   |
-|                       | | pads: Unlimited                           |
-|                       | | storage_order: Only supports setting to 0 |
-|                       | | strides: Unlimited                        |
-+-----------------------+---------------------------------------------+
 | Mul                   | Unlimited                                   |
 +-----------------------+---------------------------------------------+
-| PRelu                 | When 4D tensor is input, the channel        |
-|                       |  dimension is in the second dimension, and  |
-|                       |  slope shape currently Only supports        |
-|                       |  (channel,) or (1, channel, 1, 1)           |
+| Not                   | Unlimited                                   |
 +-----------------------+---------------------------------------------+
 | Pad                   | | pads: Unlimited                           |
 |                       | | constant_value: Unlimited                 |
@@ -183,6 +198,11 @@ This section introduces the **NPU** supports for the ``ONNX`` operator in ``AX63
 | Pow                   | not suppors elemwise's calculation,         |
 |                       | exponent only supports initializer          |
 |                       | form and is a scalar。                      |
++-----------------------+---------------------------------------------+
+| PRelu                 | When 4D tensor is input, the channel        |
+|                       |  dimension is in the second dimension, and  |
+|                       |  slope shape currently Only supports        |
+|                       |  (channel,) or (1, channel, 1, 1)           |
 +-----------------------+---------------------------------------------+
 | ReduceL2              | | axes: Unlimited                           |
 |                       | | keepdims: Unlimited                       |
@@ -195,6 +215,11 @@ This section introduces the **NPU** supports for the ``ONNX`` operator in ``AX63
 |                       |   is not supported yet                      |
 +-----------------------+---------------------------------------------+
 | ReduceMean            | | axes: Unlimited                           |
+|                       | | keepdims: Unlimited                       |
+|                       | | noop_with_empty_axes: This parameter      |
+|                       |   is not supported yet                      |
++-----------------------+---------------------------------------------+
+| ReduceMin             | | axes: Unlimited                           |
 |                       | | keepdims: Unlimited                       |
 |                       | | noop_with_empty_axes: This parameter      |
 |                       |   is not supported yet                      |
@@ -213,14 +238,36 @@ This section introduces the **NPU** supports for the ``ONNX`` operator in ``AX63
 |                       | nearest_mode:                               |
 |                       | Only supports setting to round_prefer_ceil  |
 +-----------------------+---------------------------------------------+
+| RMSNormalization      | Unlimited                                   |
++-----------------------+---------------------------------------------+
 | RoiAlign              | sampling_ratio: only support not equals to 0|
 +-----------------------+---------------------------------------------+
+| RotaryEmbedding       | Unlimited                                   |
++-----------------------+---------------------------------------------+
 | Sigmoid               | Unlimited                                   |
++-----------------------+---------------------------------------------+
+| Round                 | Unlimited                                   |
++-----------------------+---------------------------------------------+
+| ScatterElements       | Unlimited                                   |
++-----------------------+---------------------------------------------+
+| ScatterND             | Unlimited                                   |
++-----------------------+---------------------------------------------+
+| Sigmoid               | Unlimited                                   |
++-----------------------+---------------------------------------------+
+| Silu                  | Unlimited                                   |
++-----------------------+---------------------------------------------+
+| Sin                   | Unlimited                                   |
 +-----------------------+---------------------------------------------+
 | Slice                 | | starts: Unlimited                         |
 |                       | | ends: Unlimited                           |
 |                       | | axes: Unlimited                           |
 |                       | | steps: Unlimited                          |
++-----------------------+---------------------------------------------+
+| Softmax               | axis: Unlimited                             |
++-----------------------+---------------------------------------------+
+| Softplus              | Unlimited                                   |
++-----------------------+---------------------------------------------+
+| SpaceToDepth          | blocksize: Unlimited                        |
 +-----------------------+---------------------------------------------+
 | SpatialTransformer    | The interpolation method is "bilinear",     |
 |                       | The boundary processing method 、           |
@@ -231,25 +278,23 @@ This section introduces the **NPU** supports for the ``ONNX`` operator in ``AX63
 +-----------------------+---------------------------------------------+
 | Sqrt                  | Unlimited                                   |
 +-----------------------+---------------------------------------------+
-| Silu                  | Unlimited                                   |
-+-----------------------+---------------------------------------------+
-| Sin                   | Unlimited                                   |
-+-----------------------+---------------------------------------------+
-| Swish                 | Unlimited                                   |
-+-----------------------+---------------------------------------------+
-| Squeeze               | | axes: Unlimited                           |
-+-----------------------+---------------------------------------------+
-| Softmax               | | axis: Unlimited                           |
-+-----------------------+---------------------------------------------+
-| Softplus              | Unlimited                                   |
-+-----------------------+---------------------------------------------+
-| SpaceToDepth          | blocksize: Unlimited                        |
+| Squeeze               | axes: Unlimited                             |
 +-----------------------+---------------------------------------------+
 | Sub                   | Unlimited                                   |
 +-----------------------+---------------------------------------------+
+| Swish                 | Unlimited                                   |
++-----------------------+---------------------------------------------+
 | Tanh                  | Unlimited                                   |
 +-----------------------+---------------------------------------------+
-| Transpose             | | perm: Unlimited                           |
+| Tile                  | Unlimited                                   |
 +-----------------------+---------------------------------------------+
-| Unsqueeze             | | axes: Unlimited                           |
+| Topk                  | Unlimited                                   |
++-----------------------+---------------------------------------------+
+| Transpose             | perm: Unlimited                             |
++-----------------------+---------------------------------------------+
+| Unsqueeze             | axes: Unlimited                             |
++-----------------------+---------------------------------------------+
+| Where                 | Unlimited                                   |
++-----------------------+---------------------------------------------+
+| Xor                   | Unlimited                                   |
 +-----------------------+---------------------------------------------+

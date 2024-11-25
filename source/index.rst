@@ -6,6 +6,15 @@
 AXera Pulsar2 Toolchain Instructions Manual
 ===================================================
 
+
+.. toctree::
+  :maxdepth: 1
+  :numbered:
+  :caption: copyright
+  :name: Pulsar2 Copyright
+
+  doc_update_info/copy_right_en.md
+
 .. toctree::
   :maxdepth: 2
   :numbered:
@@ -14,7 +23,8 @@ AXera Pulsar2 Toolchain Instructions Manual
 
   doc_update_info/update_info.md
   pulsar2/introduction.rst
-  user_guides_quick/quick_start.rst
+  user_guides_quick/quick_start_prepare.rst
+  user_guides_quick/quick_start_ax650.rst
   user_guides_quick/quick_start_ax620e.rst
   user_guides_advanced/advanced_build_guides.rst
   user_guides_advanced/advanced_run_guides.rst
@@ -29,7 +39,7 @@ AXera Pulsar2 Toolchain Instructions Manual
   :caption: appendix
   :name: appendix
 
-  appendix/op_support_list.rst
+  appendix/op_support_list_ax650.rst
   appendix/op_support_list_ax620e.rst
   appendix/precision_debug_guides.rst
   appendix/build_llm.rst

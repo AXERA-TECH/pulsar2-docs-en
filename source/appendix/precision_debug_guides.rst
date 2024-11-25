@@ -2,92 +2,181 @@
 Accuracy Tuning Suggestions
 =========================================
 
-------------------------------
-Accuracy loss troubleshooting
-------------------------------
+-----------------------
+Basic Troubleshooting
+-----------------------
 
-When accuracy loss occurs in the converted model, please follow the following recommended methods to troubleshoot the ``stage`` or ``layer`` where the problem occurs.
-
-~~~~~~~~~~~~~~~~
-CheckLists
-~~~~~~~~~~~~~~~~
-
-* The first step is to identify the hardware platform where accuracy loss occurs.
-
-  * It only occurs on the ``AX`` platform, please continue to troubleshoot. ``Point drop problems occur on other platforms.`` It is a common problem. Users need to consider whether to train a better model and then re-quantize; 
-
-* The second step is to determine the stage at which accuracy loss occurs.
-
-  * ``pulsar2 build`` Low bisection accuracy (``Cosin Distance < 98%``)
-
-    * ``Please follow the [Step 3] suggestions to continue troubleshooting.``
-
-  * Connect the user's `post-processing` program to the board, and the accuracy after analysis is very low.
-
-    * ``Please follow [Step 4] suggestions to continue troubleshooting.``
-
-* The third step, ``Cosin Distance`` lower than 98%
-
-  * Troubleshooting suggestions
-
-    * Use layer-by-layer bisection to view the ``layers`` where accuracy loss occurs, and refer to the accuracy tuning recommendations for tuning.
-
-* The fourth step is low board accuracy., 
-
-  * Troubleshooting suggestions
-
-    * Determine if post-processing is correct
-    * If there is no problem with post-processing. Please contact ``AX`` to report any issues.
-
-* Step fifth, seek help from AXera
-
-  * When the user still cannot solve the problem through the first four steps of troubleshooting suggestions, please send the relevant ``log`` and ``conclusion`` to the ``FAE`` students so that ``AX`` engineers can locate the problem.
-
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Layer-by-layer accuracy comparison
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-``pulsar2 build`` Provides a set of layer-by-layer accuracy comparison tools between floating-point models and quantized models. For specific usage, please refer to :ref:`《Layer-by-Layer Bisection》 <perlayer_precision_debug_en>` chapter
-
-~~~~~~~~~~~~~~~~~~~~~
-Other things to note
-~~~~~~~~~~~~~~~~~~~~~
-
-If you need ``AX`` engineers to troubleshoot the problem, please provide detailed log information and relevant experimental conclusions.
+After quantization of floating-point model, it is inevitable that there will be a certain degree of accuracy loss. In order to measure the accuracy loss, a set of quantization accuracy analysis tools is provided in the compilation stage, and the cosine similarity is used to judge whether the accuracy of the model before and after quantization meets the expectation.
+Under normal circumstances, when the cosine similarity of the final output layer of the model is > 98%, the accuracy of the quantized model can be considered normal at this time, and the next stage of deployment can be carried out.
 
 .. note::
 
-    If the minimum recurrence set can be provided, the efficiency of problem solving can be improved.
+    It should be noted that the cosine similarity of the quantization precision analysis tool at the compile stage is not equivalent to the accuracy drop on the test data set(Such as ``AP`` ， ``mAP`` )。
+    To obtain detailed data set accuracy drops, it is recommended to use the compiled model board to test the model accuracy using the data set.
 
-----------------------------
-Accuracy Tuning Suggestions
-----------------------------
+This chapter will have some basic terms:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Adjust quantitative data and configuration
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+- ** Quantization Strategy ** : Refers to the strategy used to calculate the floating point distribution range to obtain quantization parameters, corresponding to the ``calibration_method`` of the ``quant`` field in the configuration.
 
-* Adjust ``mean`` and ``std``: keep ``mean`` and ``std`` consistent with the preprocessing parameters of the model during training;
-* Adjust ``rgb/bgr`` order: This parameter will also affect the quantization accuracy and needs to be consistent with the input during model training; it can be configured through the ``input_configs.tensor_format`` field in ``quant``;
-* Quantitative data:
-  
-  * The calibration pictures should be as consistent as possible with the usage scenarios.
-  * The number of samples in each category should be balanced and cover all categories
+- ** Quantization bit width ** : refers to the input and output bit width of the operator after quantization, which can be configured through the layer_configs of the quant field.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Adjust quantitative strategies
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+When encountering accuracy problems, first confirm the following options, and then perform precision tuning according to the following sections:
 
-Currently, three quantitative strategies are supported: ``MinMax``, ``MSE``, and ``Percentile``. This can be set by modifying the calibration_method in the quant field. suggestions below:
+- mean/std consistent with training: If the quantization is using a data set in the format Image, make sure that calibration_mean and calibration_std in quant are the same as they were during training.
+- BGR and RGB format: If the quantization is using data sets in the format Image, make sure that tensor_layout in input_processors is the same as it was during training.
+- Ensure the alignment between Python pre and post processing during training and C++ pre and post processing when running on the board. Please refer to Q&A for the alignment method.
+- If 'csc_mode' is set to **YUYV422, UYVY422, YUV420SP, YVU420SP**, it is recommended to use **IVE TDP to resize** when testing accuracy on the board. This preprocessing is aligned with Opencv's 'bilinear' interpolation method.
+- Quantifying whether the data set is correct:
+  - Calibration picture and use scene as much as possible
+  - Whether the number of calibration sets is rich enough to cover all categories as far as possible
 
-* First use the ``MinMax`` strategy for quantification. If the accuracy is not ideal, try other quantification strategies;
-* For classification and detection models: It is recommended to use ``MinMax`` and ``Percentile`` for quantification;
-* For sequence models: It is recommended to use the ``MSE`` strategy for quantification. 
+
+---------------------------
+Common accuracy problems
+---------------------------
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+How to set the model to all U16?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: shell
+
+    {
+       "layer_configs": [
+           {
+               "start_tensor_names": ["DEFAULT"], # string of list
+               "end_tensor_names": ["DEFAULT"],   # string of list
+               "data_type": "U16"
+           }
+         ]
+     }
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Why configure the ``Add`` operator quantization bit width is ``U16`` in the cosine similarity table to see the type or ``U8``?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- The toolchain will first do a floating point optimization of the input floating point model before quantizing, then the configured operator name/operator type may not appear in the floating point optimized model ``optimized.onnx``. Then can open the output directory ``output/frontend/optimized onnx`` check whether there is the operator.
+- The output of the quantized model may be different from the input type, and the operator output type and configuration in the cosine similarity table will often be different, because the input type of the next operator may not be configured to be the same bit width, then the output type of the operator will be set to the input type of the next operator to improve the inference performance. This optimization does not affect accuracy.
+- If data transfer class operators such as ``Reshape/Transpose``, setting the type of the class operators will not take effect. Their types are determined by the downstream type of the calculation class operators.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+How to align before and after processing?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The misalignment of pre and post processing is usually an important reason affecting the accuracy of the upper board. In order to troubleshoot the problem of pre and post processing, we recommend following steps:
+
+.. figure:: ../media/verify-preprocess-postprocess.png
+    :alt: pipeline
+    :align: center
+
+
+- Single data. Save the original input, pre-processed data, model output and post-processed data into bin files using the Python side during training; Here you can visualize the results to ensure that the output is correct
+- C++ side test preprocessing: Read the original data saved in the previous step as input, get the C++ pre-processed result, **compared with the pre-processed data saved in the previous step, when the error between the two is within 0.0001 (1e-4), it is considered that the error is in line with the expectation, that is, (a-b) < 0.0001**.
+- C++ end test post-processing: read the model output saved in the first step, as the model output, and calculate the post-processing, get the result after C++ end processing, **compared with the post-processing data saved in the first step, when the error is within 0.001 (1e-3), it is considered that the error is in line with the expectation. That is, (a-b) < 0.001**.
+
+
 
 ~~~~~~~~~~~~~~~~~~
-Mixed precision
+outlier
 ~~~~~~~~~~~~~~~~~~
 
-If the accuracy still does not meet the requirements after trying different quantization strategies, you can find the layer with a cosine similarity value lower than 98% through layer-by-layer accuracy analysis and comparison, and set the quantization accuracy of this layer to ``U16``.
-For details, please refer to :ref:`《Detailed Explanation of Mixed Precision Quantization》 <mix_precision_quantization_en>`
+The following log appears in the model, indicating that there are a lot of ``outliers`` in the activation value of the model, we recommend using the ``smooth quant`` function to reduce these ``outliers``.
+
+
+.. code-block:: shell
+    
+                                            Ratio of outliers in tensor【 level=Log(Max_Pertensor/Max_Perchannel) 】
+    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━┓
+    ┃ Op outputs                        ┃ Sparse channel ratio ┃ level>=3 ratio     ┃ level>=4 ratio        ┃ level>=5 ratio        ┃ level>=6 ratio        ┃
+    ┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━┩
+    │ /vision_model/embeddings/patch_e… │ 0.0                  │ 0.6614583134651184 │ 0.3111979067325592    │ 0.00390625            │ 0.0                   │
+    ├───────────────────────────────────┼──────────────────────┼────────────────────┼───────────────────────┼───────────────────────┼───────────────────────┤
+    │ op_348:onnx.LayerNormalization_0… │ 0.0                  │ 0.921875           │ 0.5169270634651184    │ 0.1080729141831398    │ 0.0403645820915699    │
+    ├───────────────────────────────────┼──────────────────────┼────────────────────┼───────────────────────┼───────────────────────┼───────────────────────┤
+    │ op_396:onnx.LayerNormalization_0… │ 0.0                  │ 0.4427083432674408 │ 0.2473958283662796    │ 0.12109375            │ 0.0546875             │
+    ├───────────────────────────────────┼──────────────────────┼────────────────────┼───────────────────────┼───────────────────────┼───────────────────────┤
+    │ op_821:onnx.AxFullyConnected_q_0… │ 0.0                  │ 0.359375           │ 0.1875                │ 0.125                 │ 0.0625                │
+    ├───────────────────────────────────┼──────────────────────┼────────────────────┼───────────────────────┼───────────────────────┼───────────────────────┤
+    │ op_821:onnx.AxFullyConnected_k_0… │ 0.0                  │ 0.203125           │ 0.078125              │ 0.0625                │ 0.015625              │
+    ├───────────────────────────────────┼──────────────────────┼────────────────────┼───────────────────────┼───────────────────────┼───────────────────────┤
+    │ op_821:onnx.AxFullyConnected_v_0… │ 0.0                  │ 0.453125           │ 0.203125              │ 0.078125              │ 0.03125               │
+    ├───────────────────────────────────┼──────────────────────┼────────────────────┼───────────────────────┼───────────────────────┼───────────────────────┤
+    │ op_821:onnx.AxFullyConnected_q_1… │ 0.0                  │ 0.234375           │ 0.125                 │ 0.109375              │ 0.015625              │
+    ├───────────────────────────────────┼──────────────────────┼────────────────────┼───────────────────────┼───────────────────────┼───────────────────────┤
+    │ op_821:onnx.AxFullyConnected_k_1… │ 0.0                  │ 0.3125             │ 0.140625              │ 0.046875              │ 0.015625              │
+    ├───────────────────────────────────┼──────────────────────┼────────────────────┼───────────────────────┼───────────────────────┼───────────────────────┤
+    │ op_821:onnx.AxFullyConnected_v_1… │ 0.0                  │ 0.21875            │ 0.03125               │ 0.015625              │ 0.0                   │
+    ├───────────────────────────────────┼──────────────────────┼────────────────────┼───────────────────────┼───────────────────────┼───────────────────────┤
+    │ op_821:onnx.AxFullyConnected_q_2… │ 0.0                  │ 0.296875           │ 0.203125              │ 0.140625              │ 0.09375               │
+    ├───────────────────────────────────┼──────────────────────┼────────────────────┼───────────────────────┼───────────────────────┼───────────────────────┤
+    │ op_821:onnx.AxFullyConnected_k_2… │ 0.0                  │ 0.234375           │ 0.109375              │ 0.0625                │ 0.015625              │
+    ├───────────────────────────────────┼──────────────────────┼────────────────────┼───────────────────────┼───────────────────────┼───────────────────────┤
+    │ op_821:onnx.AxFullyConnected_v_2… │ 0.0                  │ 0.234375           │ 0.125                 │ 0.078125              │ 0.078125              │
+    ├───────────────────────────────────┼──────────────────────┼────────────────────┼───────────────────────┼───────────────────────┼───────────────────────┤
+    │ op_821:onnx.AxFullyConnected_q_3… │ 0.0                  │ 0.25               │ 0.09375               │ 0.078125              │ 0.03125               │
+    ├───────────────────────────────────┼──────────────────────┼────────────────────┼───────────────────────┼───────────────────────┼───────────────────────┤
+    │ op_821:onnx.AxFullyConnected_k_3… │ 0.0                  │ 0.1875             │ 0.109375              │ 0.03125               │ 0.015625              │
+    ├───────────────────────────────────┼──────────────────────┼────────────────────┼───────────────────────┼───────────────────────┼───────────────────────┤
+    │ op_821:onnx.AxFullyConnected_v_3… │ 0.0                  │ 0.296875           │ 0.15625               │ 0.0625                │ 0.0                   │
+    ├───────────────────────────────────┼──────────────────────┼────────────────────┼───────────────────────┼───────────────────────┼───────────────────────┤
+    │ op_821:onnx.AxFullyConnected_q_4… │ 0.0                  │ 0.234375           │ 0.171875              │ 0.0625                │ 0.046875              │
+    ├───────────────────────────────────┼──────────────────────┼────────────────────┼───────────────────────┼───────────────────────┼───────────────────────┤
+    │ op_821:onnx.AxFullyConnected_k_4… │ 0.0                  │ 0.359375           │ 0.203125              │ 0.09375               │ 0.046875              │
+
+This feature can be enabled by configuring ``enable_smooth_quant`` in the ``quant`` field.
+
+.. hint::
+
+    The method comes from the paper  `SmoothQuant <https://arxiv.org/abs/2211.10438>`_
+
+-----------------------
+Precision tuning steps
+-----------------------
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Change quantization strategy
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To improve the accuracy of the model by changing the quantization strategy, one can try ``MSE`` ``Percentile`` ``MinMax``, corresponding to ``calibration_method`` in the ``quant`` field.
+
+.. figure:: ../media/precision_analysis_step1.png
+    :alt: pipeline
+    :align: center
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Mixing precision tuning Settings
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If the cosine similarity is still low after changing the quantization strategy, the quantization bit width can be adjusted according to the cosine similarity in the ``Quant Precision Table [PerLayer Reference]``, as shown in the following figure.
+
+.. figure:: ../media/precision_analysis_step2.png
+    :alt: pipeline
+    :align: center
+
+
+-----------------------------------
+Measuring chemical sheet template
+-----------------------------------
+
+Please fill in the details below and submit to FAE/AE.
+
+- Other platform experience
+    - Whether it has been deployed on other platforms
+    - Corresponding manufacturer, chip model, and toolchain version
+    - Quantization scripts or configuration files for other platforms
+    - Other platforms execute quantization commands
+    - Corresponding data set metrics: floating point accuracy/on-board runtime accuracy/accuracy metrics
+- Provide the smallest reproducible case:
+    - onnx floating point model
+    - Single image test cases for onnx floating-point models, either python or C++
+    - config.json configuration file
+    - Minimum data set for quantization
+    - Compile command of Pulsar2
+- If the original model and data set cannot be provided due to data security, it is necessary to provide:
+   - Floating-point model with random weights
+   - Complete compilation log
+   - After precision analysis is enabled ("precision_analysis": true, "precision_analysis_method" : "EndToEnd"), output/quant/debug is packaged.
+   - config.json configuration file
+   - Minimum data set for quantization
+   - Pulsar2 Indicates the compilation command

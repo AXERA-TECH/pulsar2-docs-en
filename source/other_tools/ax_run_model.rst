@@ -1,4 +1,4 @@
-.. _ax_run_model_en:
+.. _ax_run_model:
 
 ==============================================
 Instructions for using model evaluation tools

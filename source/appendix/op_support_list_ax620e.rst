@@ -2,7 +2,7 @@
 NPU Operators support list(AX620E)
 ==================================
 
-This section introduces the **NPU** supports for the ``ONNX`` operator in ``AX630C`` ``AX620AV200`` ``AX620Q``.
+This section introduces the **NPU** supports for the ``ONNX`` operator in ``AX630C`` ``AX620Q``.
 
 - Supported ONNX opset_version >= 11. For detailed operator description, please refer to `onnx Operators <https://github.com/onnx/onnx/blob/main/docs/Operators.md>`_.
 - Some of the supported operators do not have standard ONNX definitions yet. If such operators are included in the model, please consult technical support.
@@ -11,7 +11,6 @@ This section introduces the **NPU** supports for the ``ONNX`` operator in ``AX63
     | "Not supported yet": Indicates that the current version of the operator implementation does not support it, but the NPU can theoretically support it, and subsequent versions may support it.
     | "Unlimited": Indicates that the current operator implementation can support it. Since the test may not necessarily cover the entire parameter space, if something unexpected happens, you can give us feedback and we will treat it as a BUG and fix it as soon as possible.
     | "Not supported": Indicates that the implementation of this attribute cannot be supported.
-
 
 +-----------------------+---------------------------------------------+
 | Operators             | Attrs limitation                            |
@@ -116,6 +115,8 @@ This section introduces the **NPU** supports for the ``ONNX`` operator in ``AX63
 | Greater               | Unlimited                                   |
 +-----------------------+---------------------------------------------+
 | GreaterOrEqual        | Unlimited                                   |
++-----------------------+---------------------------------------------+
+| GridSample            | Unlimited                                   |
 +-----------------------+---------------------------------------------+
 | HardSigmoid           | Unlimited                                   |
 +-----------------------+---------------------------------------------+
@@ -222,7 +223,7 @@ This section introduces the **NPU** supports for the ``ONNX`` operator in ``AX63
 |                       | | steps: Unlimited                          |
 +-----------------------+---------------------------------------------+
 | SpatialTransformer    | The interpolation method is "bilinear",     |
-|                       | The boundary processing method 、           |
+|                       | The boundary processing method              |
 |                       | is "constant" (value = 0)                   |
 +-----------------------+---------------------------------------------+
 | Split                 | | axis: Unlimited                           |
@@ -248,7 +249,11 @@ This section introduces the **NPU** supports for the ``ONNX`` operator in ``AX63
 +-----------------------+---------------------------------------------+
 | Tanh                  | Unlimited                                   |
 +-----------------------+---------------------------------------------+
+| Topk                  | Unlimited                                   |
++-----------------------+---------------------------------------------+
 | Transpose             | | perm: Unlimited                           |
 +-----------------------+---------------------------------------------+
 | Unsqueeze             | | axes: Unlimited                           |
++-----------------------+---------------------------------------------+
+| Where                 | Unlimited                                   |
 +-----------------------+---------------------------------------------+

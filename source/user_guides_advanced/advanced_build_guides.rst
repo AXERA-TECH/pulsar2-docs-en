@@ -13,7 +13,7 @@ Overview
      :align: center
 
 * ``pulsar2 build`` uses the input model (``model.onnx``), PTQ calibration data (``calibration.tar``) and configuration file (``config.json``) to generate the output model (``axmodel``).
-* The command line parameters of ``pulsar2 build`` will overwrite certain corresponding parts in the configuration file, and cause ``pulsar2 build`` to output the overwritten configuration file. For a detailed introduction to the configuration file, see :ref:`《Configuration file details》 <config_details_en>`.
+* The command line parameters of ``pulsar2 build`` will overwrite certain corresponding parts in the configuration file, and cause ``pulsar2 build`` to output the overwritten configuration file. For a detailed introduction to the configuration file, see :ref:`《Configuration file details》 <config_details>`.
 
 ------------------------------------------
 Detailed explanation of model compilation
@@ -154,7 +154,7 @@ Detailed explanation of parameters
 
         - type of data: string
         - required or not:  yes
-        - description：configuration file path, supports ``json/yaml/toml/prototxt`` format, see :ref:`《Configuration File Detailed Description》 <config_details_en>` for the structure
+        - description：configuration file path, supports ``json/yaml/toml/prototxt`` format, see :ref:`《Configuration File Detailed Description》 <config_details>` for the structure
 
     --work_dir
 
@@ -247,7 +247,7 @@ Detailed explanation of parameters
             - type of data: enum
             - required or not:  no
             - default value: MinMax
-            - description： Quantization algorithm, supported enumerations ``MinMax``, ``Percentile``, ``MSE``, the structure can be found in :ref:`《Configuration File Detailed Description》 <config_details_en>`
+            - description： Quantization algorithm, supported enumerations ``MinMax``, ``Percentile``, ``MSE``, the structure can be found in :ref:`《Configuration File Detailed Description》 <config_details>`
 
         - precision_analysis
 
@@ -325,14 +325,21 @@ Detailed explanation of parameters
             - type of data: list of int
             - required or not:  no
             - default value: 0
-            - description： The compiler compiles according to the batch combination provided by the user. Based on this set of batch models, it can support efficient inference of any batch_size input at runtime. For details, please refer to: :ref:`《Static multi-batch mode》<multi_batch_static_compile_en>`.
+            - description： The compiler compiles according to the batch combination provided by the user. Based on this set of batch models, it can support efficient inference of any batch_size input at runtime. For details, please refer to: :ref:`《Static multi-batch mode》<multi_batch_static_compile>`.
 
         - max_dynamic_batch_size
 
             - type of data: int
             - required or not:  no
             - default value: 0
-            - description： The compiler automatically derives a batch model combination that the NPU can run efficiently and is no larger than max_dynamic_batch_size. Based on this set of batch models, efficient inference of any batch_size input can be supported at runtime. For details, please refer to: :ref:`《Dynamic multi-batch mode》<multi_batch_dynamic_compile_en>`.
+            - description： The compiler automatically derives a batch model combination that the NPU can run efficiently and is no larger than max_dynamic_batch_size. Based on this set of batch models, efficient inference of any batch_size input can be supported at runtime. For details, please refer to: :ref:`《Dynamic multi-batch mode》<multi_batch_dynamic_compile>`.
+
+        - ddr_bw_limit
+
+            - type of data: float
+            - required or not: No
+            - default value: 0
+            - description：: Set the compile-time emulation ddr bandwidth limit in GB.
 
         - disable_ir_fix
 
@@ -341,12 +348,54 @@ Detailed explanation of parameters
             - default value: false
             - description： whether to disable the compiler's default Reshape operator attribute modification behavior during multi-batch compilation.
 
+        - npu_perf
+
+            - type of data: bool
+            - required or not:  no
+            - default value: false
+            - description：: export debug files during NPU compilation.
+
         - check
 
             - type of data: int
             - required or not:  no
             - default value: 0
             - description： whether to check the correctness of the compilation results through simulation, 0 means no checking; 1 means checking whether the compilation results can run correctly; 2 means checking whether the output data of the model is correct.
+
+        - check_mode
+
+          - type of data: enum
+          - required or not:  no
+          - default value: 0
+          - description：bisection mode, CheckOutput means that only the result is bisected. CheckPerLayer means bisection layer by layer.
+
+        - check_rtol
+
+          - type of data: float
+          - required or not:  no
+          - default value: 1e-5
+          - description：this parameter is effective when the --compiler.check parameter is 1. This parameter is the relative error parameter.
+
+        - check_atol
+
+          - type of data: float
+          - required or not:  no
+          - default value: 0
+          - description：this parameter is effective when the --compiler.check parameter is 1. This parameter is the relative error parameter.
+
+        - check_cosine_simularity
+
+          - type of data: float
+          - required or not:  no
+          - default value: 0.999
+          - description：this parameter is only valid when the --compiler.check parameter is 3. This parameter specifies the tensor cosine similarity check threshold.
+
+        - check_tensor_black_list
+
+          - type of data: list of string
+          - required or not:  no
+          - default value: []
+          - description：a list of tensors that are not included in the check. Regular expression matching is supported.
 
         - input_sample_dir
 
@@ -369,7 +418,7 @@ Users can flexibly configure the **NPU compilation mode** by modifying the ``--n
 NPU single core mode
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The default configuration of ``--npu_mode`` is ``NPU1``, which is ``1 NPU core`` mode. The previous :ref:`《Model Compilation》 <model_compile_en>` chapter used the default configuration of ``NPU1`` for explanation.
+The default configuration of ``--npu_mode`` is ``NPU1``, which is ``1 NPU core`` mode. The previous :ref:`《Model Compilation》 <model_compile>` chapter used the default configuration of ``NPU1`` for explanation.
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 NPU dual core mode
@@ -381,7 +430,7 @@ NPU dual core mode
 
     {
       "model_type": "ONNX",
-      "npu_mode": "NPU2",   # Just change it here, default is NPU1
+      "npu_mode": "NPU2",   # 只需要修改这里，默认配置是 NPU1
       "quant": {
         "input_configs": [
           {
@@ -416,7 +465,7 @@ The compilation command of ``pulsar2 build`` as follows:
 
     root@xxx:/data# pulsar2 build --input model/mobilenetv2-sim.onnx --output_dir output --config config/mobilenet_v2_build_config.json
 
-.. _multi_batch_compile_en:
+.. _multi_batch_compile:
 
 -------------------------------------------------
 Detailed explanation of multi-batch compilation
@@ -424,7 +473,7 @@ Detailed explanation of multi-batch compilation
 
 ``pulsar2 build`` supports users to configure the batch_size of the model, which is divided into two modes: static multi-batch and dynamic multi-batch compilation. These two modes are mutually exclusive. This chapter uses ``AX650`` as an example.
 
-.. _multi_batch_static_compile_en:
+.. _multi_batch_static_compile:
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Static multi-batch mode
@@ -441,7 +490,7 @@ The compiler compiles according to the batch combination provided by the user, a
     Taking the mobilenetv2 model as an example, the original model input ``input`` shape is ``[1, 224, 224, 3]``,
     After static multi-batch compilation with ``static_batch_sizes`` equal to [1, 2, 4], the shape will become ``[4, 224, 224, 3]``.
 
-.. _multi_batch_dynamic_compile_en:
+.. _multi_batch_dynamic_compile:
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Dynamic multi-batch mode
@@ -488,9 +537,9 @@ Multi-batch compilation of models containing the Reshape operator
 
 If the model contains the ``Reshape`` operator, ``pulsar2`` may not be able to correctly infer the output shape of the ``Reshape`` operator when performing multi-batch compilation.
 
-At this time, the user can modify the ``shape`` input data of the ``Reshape`` operator through the :ref:`《Constant Data Modification》<Const_patch_en>` function, so that ``pulsar2`` can be correct during the multi-batch compilation process. Derive the output shape.
+At this time, the user can modify the ``shape`` input data of the ``Reshape`` operator through the :ref:`《Constant Data Modification》<Const_patch>` function, so that ``pulsar2`` can be correct during the multi-batch compilation process. Derive the output shape.
 
-For example, there is a ``Reshape`` operator with a shape of ``[2, 1, 64]``. Assuming that the first dimension is batch, through the constant data modification function. the constant tensor corresponding to the shape is modified to ``[2, -1, 64]`` or ``[2, 0, 64]`` to support multi-batch compilation.
+For example, there is a ``Reshape`` operator with a shape of ``[2, 1, 64]``. Assuming that the first dimension is batch, the constant tensor corresponding to the shape is modified to ``[ through the constant data modification function. 2, -1, 64]`` or ``[2, 0, 64]`` to support multi-batch compilation.
 
 In addition, if the user does not explicitly configure the operator attribute modification, then ``pulsar2`` will modify the 0th dimension of the ``Reshape`` operator**shape to -1, and try to perform multi-batch compilation**.
 
@@ -498,7 +547,7 @@ In addition, if the user does not explicitly configure the operator attribute mo
 
      pulsar2 supports configuring ``0`` or ``-1`` in the shape of ``Reshape``. ``0`` represents the same value as the corresponding dimension of the input tensor; ``-1`` represents the unknown dimension size calculated based on the input tensor.
 
-.. _perlayer_precision_debug_en:
+.. _perlayer_precision_debug:
 
 ------------------------------------
 Detailed explanation layer by layer
@@ -530,7 +579,7 @@ Detailed explanation layer by layer
           }
         ],
         "calibration_method": "MinMax",
-        "precision_analysis": true  # change here is true, default is false
+        "precision_analysis": true  # 这里修改为 true, 默认是 false
       },
       "input_processors": [
         {
@@ -548,155 +597,169 @@ Detailed explanation layer by layer
     }
 
 After re-executing the compilation process, you can get the following output information with ``Quant Precision Table``, including **node name, type, output name, data type, output shape, cosine similarity**, etc.:
+At the same time, a quantized similarity graph file in mmd format will be saved. Different similarities can be distinguished by color, which can more intuitively locate precision problems. The file path can be found through the ``save precision analysis graph to`` keyword in the log.
 
 .. code-block:: bash
 
     root@xxx:/data# pulsar2 build --input model/mobilenetv2-sim.onnx --output_dir output --config config/mobilenet_v2_build_config.json
     ...
+
     Building native ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:00
-                                          Quant Precision Table 【PerLayer Reference】
-    ┏━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━┓
-    ┃ Operator             ┃ Type                      ┃ Output Tensor ┃ Data Type ┃ Shape             ┃ Cosin Distance     ┃
-    ┡━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━┩
-    │ Conv_0               │ AxQuantizedConv           │ 474           │ FP32      │ (1, 32, 112, 112) │ 0.999932050704956  │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Conv_2               │ AxQuantizedConv           │ 477           │ FP32      │ (1, 32, 112, 112) │ 0.9994480609893799 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Conv_4               │ AxQuantizedConv           │ 480           │ FP32      │ (1, 16, 112, 112) │ 0.9990373849868774 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Conv_5               │ AxQuantizedConv           │ 483           │ FP32      │ (1, 96, 112, 112) │ 0.9993898272514343 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Conv_7               │ AxQuantizedConv           │ 486           │ FP32      │ (1, 96, 56, 56)   │ 0.9991888999938965 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Conv_9               │ AxQuantizedConv           │ 489           │ FP32      │ (1, 24, 56, 56)   │ 0.9991229772567749 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Conv_10              │ AxQuantizedConv           │ 492           │ FP32      │ (1, 144, 56, 56)  │ 0.999823272228241  │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Conv_12              │ AxQuantizedConv           │ 495           │ FP32      │ (1, 144, 56, 56)  │ 0.9995720386505127 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Conv_14              │ AxQuantizedConv           │ 498           │ FP32      │ (1, 24, 56, 56)   │ 0.9993237853050232 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Add_15               │ AxQuantizedAdd            │ 339           │ FP32      │ (1, 24, 56, 56)   │ 0.9992991089820862 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Conv_16              │ AxQuantizedConv           │ 501           │ FP32      │ (1, 144, 56, 56)  │ 0.9996923208236694 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Conv_18              │ AxQuantizedConv           │ 504           │ FP32      │ (1, 144, 28, 28)  │ 0.9997930526733398 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Conv_20              │ AxQuantizedConv           │ 507           │ FP32      │ (1, 32, 28, 28)   │ 0.9997037053108215 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Conv_21              │ AxQuantizedConv           │ 510           │ FP32      │ (1, 192, 28, 28)  │ 0.9998888373374939 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Conv_23              │ AxQuantizedConv           │ 513           │ FP32      │ (1, 192, 28, 28)  │ 0.9993594884872437 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Conv_25              │ AxQuantizedConv           │ 516           │ FP32      │ (1, 32, 28, 28)   │ 0.9995540976524353 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Add_26               │ AxQuantizedAdd            │ 356           │ FP32      │ (1, 32, 28, 28)   │ 0.999687135219574  │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Conv_27              │ AxQuantizedConv           │ 519           │ FP32      │ (1, 192, 28, 28)  │ 0.9998943209648132 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Conv_29              │ AxQuantizedConv           │ 522           │ FP32      │ (1, 192, 28, 28)  │ 0.9997372031211853 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Conv_31              │ AxQuantizedConv           │ 525           │ FP32      │ (1, 32, 28, 28)   │ 0.9995033144950867 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Add_32               │ AxQuantizedAdd            │ 365           │ FP32      │ (1, 32, 28, 28)   │ 0.9996601343154907 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Conv_33              │ AxQuantizedConv           │ 528           │ FP32      │ (1, 192, 28, 28)  │ 0.9998391270637512 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Conv_35              │ AxQuantizedConv           │ 531           │ FP32      │ (1, 192, 14, 14)  │ 0.999911367893219  │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Conv_37              │ AxQuantizedConv           │ 534           │ FP32      │ (1, 64, 14, 14)   │ 0.9996770024299622 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Conv_38              │ AxQuantizedConv           │ 537           │ FP32      │ (1, 384, 14, 14)  │ 0.9999406337738037 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Conv_40              │ AxQuantizedConv           │ 540           │ FP32      │ (1, 384, 14, 14)  │ 0.9997537136077881 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Conv_42              │ AxQuantizedConv           │ 543           │ FP32      │ (1, 64, 14, 14)   │ 0.9997888207435608 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Add_43               │ AxQuantizedAdd            │ 382           │ FP32      │ (1, 64, 14, 14)   │ 0.9997644424438477 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Conv_44              │ AxQuantizedConv           │ 546           │ FP32      │ (1, 384, 14, 14)  │ 0.9999357461929321 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Conv_46              │ AxQuantizedConv           │ 549           │ FP32      │ (1, 384, 14, 14)  │ 0.9998541474342346 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Conv_48              │ AxQuantizedConv           │ 552           │ FP32      │ (1, 64, 14, 14)   │ 0.9997283816337585 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Add_49               │ AxQuantizedAdd            │ 391           │ FP32      │ (1, 64, 14, 14)   │ 0.9997260570526123 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Conv_50              │ AxQuantizedConv           │ 555           │ FP32      │ (1, 384, 14, 14)  │ 0.9998891353607178 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Conv_52              │ AxQuantizedConv           │ 558           │ FP32      │ (1, 384, 14, 14)  │ 0.9995425939559937 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Conv_54              │ AxQuantizedConv           │ 561           │ FP32      │ (1, 64, 14, 14)   │ 0.9989281892776489 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Add_55               │ AxQuantizedAdd            │ 400           │ FP32      │ (1, 64, 14, 14)   │ 0.9995357394218445 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Conv_56              │ AxQuantizedConv           │ 564           │ FP32      │ (1, 384, 14, 14)  │ 0.9998661875724792 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Conv_58              │ AxQuantizedConv           │ 567           │ FP32      │ (1, 384, 14, 14)  │ 0.9998401999473572 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Conv_60              │ AxQuantizedConv           │ 570           │ FP32      │ (1, 96, 14, 14)   │ 0.9996302723884583 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Conv_61              │ AxQuantizedConv           │ 573           │ FP32      │ (1, 576, 14, 14)  │ 0.9998155832290649 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Conv_63              │ AxQuantizedConv           │ 576           │ FP32      │ (1, 576, 14, 14)  │ 0.9993364810943604 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Conv_65              │ AxQuantizedConv           │ 579           │ FP32      │ (1, 96, 14, 14)   │ 0.9981837868690491 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Add_66               │ AxQuantizedAdd            │ 417           │ FP32      │ (1, 96, 14, 14)   │ 0.9994098544120789 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Conv_67              │ AxQuantizedConv           │ 582           │ FP32      │ (1, 576, 14, 14)  │ 0.998947262763977  │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Conv_69              │ AxQuantizedConv           │ 585           │ FP32      │ (1, 576, 14, 14)  │ 0.9985659718513489 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Conv_71              │ AxQuantizedConv           │ 588           │ FP32      │ (1, 96, 14, 14)   │ 0.9961519241333008 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Add_72               │ AxQuantizedAdd            │ 426           │ FP32      │ (1, 96, 14, 14)   │ 0.998038113117218  │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Conv_73              │ AxQuantizedConv           │ 591           │ FP32      │ (1, 576, 14, 14)  │ 0.9991413950920105 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Conv_75              │ AxQuantizedConv           │ 594           │ FP32      │ (1, 576, 7, 7)    │ 0.9995304346084595 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Conv_77              │ AxQuantizedConv           │ 597           │ FP32      │ (1, 160, 7, 7)    │ 0.9926491379737854 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Conv_78              │ AxQuantizedConv           │ 600           │ FP32      │ (1, 960, 7, 7)    │ 0.9965869784355164 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Conv_80              │ AxQuantizedConv           │ 603           │ FP32      │ (1, 960, 7, 7)    │ 0.9980652332305908 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Conv_82              │ AxQuantizedConv           │ 606           │ FP32      │ (1, 160, 7, 7)    │ 0.9920080900192261 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Add_83               │ AxQuantizedAdd            │ 443           │ FP32      │ (1, 160, 7, 7)    │ 0.9830436706542969 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Conv_84              │ AxQuantizedConv           │ 609           │ FP32      │ (1, 960, 7, 7)    │ 0.99485182762146   │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Conv_86              │ AxQuantizedConv           │ 612           │ FP32      │ (1, 960, 7, 7)    │ 0.9986639022827148 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Conv_88              │ AxQuantizedConv           │ 615           │ FP32      │ (1, 160, 7, 7)    │ 0.9871683716773987 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Add_89               │ AxQuantizedAdd            │ 452           │ FP32      │ (1, 160, 7, 7)    │ 0.9710026383399963 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Conv_90              │ AxQuantizedConv           │ 618           │ FP32      │ (1, 960, 7, 7)    │ 0.9886921048164368 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Conv_92              │ AxQuantizedConv           │ 621           │ FP32      │ (1, 960, 7, 7)    │ 0.9995152950286865 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Conv_94              │ AxQuantizedConv           │ 624           │ FP32      │ (1, 320, 7, 7)    │ 0.9987302422523499 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Conv_95              │ AxQuantizedConv           │ 627           │ FP32      │ (1, 1280, 7, 7)   │ 0.9998956918716431 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ GlobalAveragePool_97 │ AxQuantizedAvgPool        │ 464           │ FP32      │ (1, 1280, 1, 1)   │ 0.9999791979789734 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Reshape_103          │ AxReshape                 │ 472           │ FP32      │ (1, 1280)         │ 0.9999794960021973 │
-    ├──────────────────────┼───────────────────────────┼───────────────┼───────────┼───────────────────┼────────────────────┤
-    │ Gemm_104             │ AxQuantizedFullyConnected │ output        │ FP32      │ (1, 1000)         │ 0.99989914894104   │
-    └──────────────────────┴───────────────────────────┴───────────────┴───────────┴───────────────────┴────────────────────┘
+                                                 Quant Precision Table【PerLayer Reference】
+    ┏━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━┳━━━━━━━┳━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━┓
+    ┃ Operator                ┃          Type          ┃ Output Tensor ┃       Shape       ┃ DType ┃ QDType ┃ Cosin   ┃ MSE     ┃
+    ┡━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━╇━━━━━━━╇━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━┩
+    │ Conv_0                  │    AxQuantizedConv     │ 317           │ (1, 32, 112, 112) │ FP32  │   U8   │ 0.99993 │ 0.00003 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Conv_2                  │    AxQuantizedConv     │ 320           │ (1, 32, 112, 112) │ FP32  │   U8   │ 0.99945 │ 0.00070 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Conv_4                  │    AxQuantizedConv     │ 480           │ (1, 16, 112, 112) │ FP32  │   U8   │ 0.99904 │ 0.00046 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Conv_5                  │    AxQuantizedConv     │ 325           │ (1, 96, 112, 112) │ FP32  │   U8   │ 0.99939 │ 0.00008 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Conv_7                  │    AxQuantizedConv     │ 328           │  (1, 96, 56, 56)  │ FP32  │   U8   │ 0.99919 │ 0.00020 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Conv_9                  │    AxQuantizedConv     │ 489           │  (1, 24, 56, 56)  │ FP32  │   U8   │ 0.99912 │ 0.00027 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Conv_10                 │    AxQuantizedConv     │ 333           │ (1, 144, 56, 56)  │ FP32  │   U8   │ 0.99982 │ 0.00002 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Conv_12                 │    AxQuantizedConv     │ 336           │ (1, 144, 56, 56)  │ FP32  │   U8   │ 0.99957 │ 0.00005 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Conv_14                 │    AxQuantizedConv     │ 498           │  (1, 24, 56, 56)  │ FP32  │   U8   │ 0.99933 │ 0.00026 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Add_15                  │     AxQuantizedAdd     │ 339           │  (1, 24, 56, 56)  │ FP32  │   U8   │ 0.99930 │ 0.00050 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Conv_16                 │    AxQuantizedConv     │ 342           │ (1, 144, 56, 56)  │ FP32  │   U8   │ 0.99969 │ 0.00002 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Conv_18                 │    AxQuantizedConv     │ 345           │ (1, 144, 28, 28)  │ FP32  │   U8   │ 0.99979 │ 0.00004 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Conv_20                 │    AxQuantizedConv     │ 507           │  (1, 32, 28, 28)  │ FP32  │   U8   │ 0.99970 │ 0.00013 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Conv_21                 │    AxQuantizedConv     │ 350           │ (1, 192, 28, 28)  │ FP32  │   U8   │ 0.99989 │ 0.00001 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Conv_23                 │    AxQuantizedConv     │ 353           │ (1, 192, 28, 28)  │ FP32  │   U8   │ 0.99936 │ 0.00003 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Conv_25                 │    AxQuantizedConv     │ 516           │  (1, 32, 28, 28)  │ FP32  │   U8   │ 0.99955 │ 0.00008 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Add_26                  │     AxQuantizedAdd     │ 356           │  (1, 32, 28, 28)  │ FP32  │   U8   │ 0.99969 │ 0.00020 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Conv_27                 │    AxQuantizedConv     │ 359           │ (1, 192, 28, 28)  │ FP32  │   U8   │ 0.99989 │ 0.00000 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Conv_29                 │    AxQuantizedConv     │ 362           │ (1, 192, 28, 28)  │ FP32  │   U8   │ 0.99974 │ 0.00001 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Conv_31                 │    AxQuantizedConv     │ 525           │  (1, 32, 28, 28)  │ FP32  │   U8   │ 0.99950 │ 0.00006 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Add_32                  │     AxQuantizedAdd     │ 365           │  (1, 32, 28, 28)  │ FP32  │   U8   │ 0.99966 │ 0.00026 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Conv_33                 │    AxQuantizedConv     │ 368           │ (1, 192, 28, 28)  │ FP32  │   U8   │ 0.99984 │ 0.00001 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Conv_35                 │    AxQuantizedConv     │ 371           │ (1, 192, 14, 14)  │ FP32  │   U8   │ 0.99991 │ 0.00002 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Conv_37                 │    AxQuantizedConv     │ 534           │  (1, 64, 14, 14)  │ FP32  │   U8   │ 0.99968 │ 0.00012 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Conv_38                 │    AxQuantizedConv     │ 376           │ (1, 384, 14, 14)  │ FP32  │   U8   │ 0.99994 │ 0.00000 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Conv_40                 │    AxQuantizedConv     │ 379           │ (1, 384, 14, 14)  │ FP32  │   U8   │ 0.99975 │ 0.00001 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Conv_42                 │    AxQuantizedConv     │ 543           │  (1, 64, 14, 14)  │ FP32  │   U8   │ 0.99979 │ 0.00004 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Add_43                  │     AxQuantizedAdd     │ 382           │  (1, 64, 14, 14)  │ FP32  │   U8   │ 0.99976 │ 0.00011 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Conv_44                 │    AxQuantizedConv     │ 385           │ (1, 384, 14, 14)  │ FP32  │   U8   │ 0.99994 │ 0.00000 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Conv_46                 │    AxQuantizedConv     │ 388           │ (1, 384, 14, 14)  │ FP32  │   U8   │ 0.99985 │ 0.00001 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Conv_48                 │    AxQuantizedConv     │ 552           │  (1, 64, 14, 14)  │ FP32  │   U8   │ 0.99973 │ 0.00003 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Add_49                  │     AxQuantizedAdd     │ 391           │  (1, 64, 14, 14)  │ FP32  │   U8   │ 0.99973 │ 0.00013 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Conv_50                 │    AxQuantizedConv     │ 394           │ (1, 384, 14, 14)  │ FP32  │   U8   │ 0.99989 │ 0.00000 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Conv_52                 │    AxQuantizedConv     │ 397           │ (1, 384, 14, 14)  │ FP32  │   U8   │ 0.99954 │ 0.00002 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Conv_54                 │    AxQuantizedConv     │ 561           │  (1, 64, 14, 14)  │ FP32  │   U8   │ 0.99893 │ 0.00016 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Add_55                  │     AxQuantizedAdd     │ 400           │  (1, 64, 14, 14)  │ FP32  │   U8   │ 0.99954 │ 0.00024 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Conv_56                 │    AxQuantizedConv     │ 403           │ (1, 384, 14, 14)  │ FP32  │   U8   │ 0.99987 │ 0.00000 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Conv_58                 │    AxQuantizedConv     │ 406           │ (1, 384, 14, 14)  │ FP32  │   U8   │ 0.99984 │ 0.00002 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Conv_60                 │    AxQuantizedConv     │ 570           │  (1, 96, 14, 14)  │ FP32  │   U8   │ 0.99963 │ 0.00007 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Conv_61                 │    AxQuantizedConv     │ 411           │ (1, 576, 14, 14)  │ FP32  │   U8   │ 0.99982 │ 0.00000 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Conv_63                 │    AxQuantizedConv     │ 414           │ (1, 576, 14, 14)  │ FP32  │   U8   │ 0.99934 │ 0.00003 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Conv_65                 │    AxQuantizedConv     │ 579           │  (1, 96, 14, 14)  │ FP32  │   U8   │ 0.99818 │ 0.00018 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Add_66                  │     AxQuantizedAdd     │ 417           │  (1, 96, 14, 14)  │ FP32  │   U8   │ 0.99941 │ 0.00016 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Conv_67                 │    AxQuantizedConv     │ 420           │ (1, 576, 14, 14)  │ FP32  │   U8   │ 0.99895 │ 0.00002 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Conv_69                 │    AxQuantizedConv     │ 423           │ (1, 576, 14, 14)  │ FP32  │   U8   │ 0.99857 │ 0.00006 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Conv_71                 │    AxQuantizedConv     │ 588           │  (1, 96, 14, 14)  │ FP32  │   U8   │ 0.99615 │ 0.00052 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Add_72                  │     AxQuantizedAdd     │ 426           │  (1, 96, 14, 14)  │ FP32  │   U8   │ 0.99804 │ 0.00078 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Conv_73                 │    AxQuantizedConv     │ 429           │ (1, 576, 14, 14)  │ FP32  │   U8   │ 0.99914 │ 0.00002 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Conv_75                 │    AxQuantizedConv     │ 432           │  (1, 576, 7, 7)   │ FP32  │   U8   │ 0.99953 │ 0.00005 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Conv_77                 │    AxQuantizedConv     │ 597           │  (1, 160, 7, 7)   │ FP32  │   U8   │ 0.99265 │ 0.00047 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Conv_78                 │    AxQuantizedConv     │ 437           │  (1, 960, 7, 7)   │ FP32  │   U8   │ 0.99659 │ 0.00008 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Conv_80                 │    AxQuantizedConv     │ 440           │  (1, 960, 7, 7)   │ FP32  │   U8   │ 0.99807 │ 0.00007 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Conv_82                 │    AxQuantizedConv     │ 606           │  (1, 160, 7, 7)   │ FP32  │   U8   │ 0.99201 │ 0.00042 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Add_83                  │     AxQuantizedAdd     │ 443           │  (1, 160, 7, 7)   │ FP32  │   U8   │ 0.98304 │ 0.00211 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Conv_84                 │    AxQuantizedConv     │ 446           │  (1, 960, 7, 7)   │ FP32  │   U8   │ 0.99485 │ 0.00011 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Conv_86                 │    AxQuantizedConv     │ 449           │  (1, 960, 7, 7)   │ FP32  │   U8   │ 0.99866 │ 0.00007 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Conv_88                 │    AxQuantizedConv     │ 615           │  (1, 160, 7, 7)   │ FP32  │   U8   │ 0.98717 │ 0.00190 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Add_89                  │     AxQuantizedAdd     │ 452           │  (1, 160, 7, 7)   │ FP32  │   U8   │ 0.97100 │ 0.00809 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Conv_90                 │    AxQuantizedConv     │ 455           │  (1, 960, 7, 7)   │ FP32  │   U8   │ 0.98869 │ 0.00006 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Conv_92                 │    AxQuantizedConv     │ 458           │  (1, 960, 7, 7)   │ FP32  │   U8   │ 0.99952 │ 0.00002 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Conv_94                 │    AxQuantizedConv     │ 624           │  (1, 320, 7, 7)   │ FP32  │   U8   │ 0.99873 │ 0.00012 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Conv_95                 │    AxQuantizedConv     │ 463           │  (1, 1280, 7, 7)  │ FP32  │   U8   │ 0.99990 │ 0.00024 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ GlobalAveragePool_97    │ AxQuantizedGlobAvgPool │ 464           │  (1, 1280, 1, 1)  │ FP32  │   U8   │ 0.99998 │ 0.00002 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ Reshape_103             │       AxReshape        │ 472           │     (1, 1280)     │ FP32  │   U8   │ 0.99998 │ 0.00002 │
+    ├─────────────────────────┼────────────────────────┼───────────────┼───────────────────┼───────┼────────┼─────────┼─────────┤
+    │ output_DequantizeLinear │   AxDequantizeLinear   │ output        │     (1, 1000)     │ FP32  │  FP32  │ 0.99990 │ 0.00173 │
+    └─────────────────────────┴────────────────────────┴───────────────┴───────────────────┴───────┴────────┴─────────┴─────────┘
+    2024-09-25 11:47:01.640 | INFO     | yamain.command.precision_analysis:quant_precision_analysis:401 - save precision analysis table to [output/quant/debug/precision_analysis_table.txt]
+    2024-09-25 11:47:01.641 | INFO     | yamain.command.precision_analysis:quant_precision_analysis:409 - save precision analysis graph to [output/quant/debug/precision_analysis.mmd]
     ...
+
+
+Open the ``output/quant/debug/precision_analysis.mmd`` file with an editing tool that supports mermaid flowchart and you can see the following quantitative similarity graph
+
+.. figure:: ../media/precision_analysis.png
+        :alt: precision_analysis_group
+        :align: center
 
 .. hint::
 
-    For more details, please refer to :ref:`《Quantitative Precision Analysis Parameter Description》 <quant_precision_analysis_config_define_en>`.
+    For more details, please refer to :ref:`《Quantitative Precision Analysis Parameter Description》 <quant_precision_analysis_config_define>`.
 
 .. note::
 
     If ``"precision_analysis": false`` is in the configuration file and the compilation command contains ``--quant.precision_analysis 1``, the precision comparison function will still be enabled.
+
+
+.. _custom_calib_dataset:
 
 -------------------------------------------------
 Detailed explanation of loading custom data sets
@@ -778,7 +841,108 @@ After compilation is executed, the ``Data Format`` field in ``Quant Config Table
     └───────┴──────────────────┴───────────────────┴─────────────┴───────────────┴──────────────────────────────────────────────────────────────┴────────────────────┘
     ...
 
-.. _mix_precision_quantization_en:
+----------------------------------------------------------
+Multi-input model configuration quantitative data set
+----------------------------------------------------------
+
+For models with multiple inputs, different inputs require different calibration sets, which can be achieved by modifying the configuration.
+
+The field ``input_configs`` supports configuring multiple inputs. ``tensor_name`` is used to specify the input name of the model. The following is a configuration example:
+
+.. code-block:: shell
+
+    {
+      "quant": {
+        "input_configs": [
+          {
+            "tensor_name": "input1", # 输入 1
+            "calibration_dataset": "input1_dataset.tar",
+            "calibration_size": 10,
+            "calibration_mean": [103.939, 116.779, 123.68],
+            "calibration_std": [58.0, 58.0, 58.0],
+            "calibration_format": "Image", # 
+          },
+          {
+            "tensor_name": "input2", # 输入 2
+            "calibration_dataset": "input2_dataset.tar",
+            "calibration_size": 10,
+            "calibration_mean": [103.939, 116.779, 123.68],
+            "calibration_std": [58.0, 58.0, 58.0],
+            "calibration_format": "Image", 
+          },
+        ],
+      }
+    }
+
+In a multi-input model, different inputs may need to be matched in each ``batch``. In this case, you can change the calibration sets of different inputs to the same ``batch`` to the same name. When quantizing, the inputs with the same name will be selected as one ``batch`` for quantization.
+
+Taking the above configuration file as an example, the following is an example of the directory structure of the corresponding quantization file:
+
+.. code-block:: shell
+
+    .
+    ├── input1
+    │   ├── 1.bin
+    │   └── 2.bin
+    └── input2
+        ├── 1.bin
+        └── 2.bin
+
+When the quantization module calibrates the data, it takes ``1.bin`` of ``input1`` and ``1.bin`` of ``input2`` as the first ``batch``.    
+
+------------------------------------------------------------------------
+Multi-input model configuration quantization data set (NumpyObject)
+------------------------------------------------------------------------
+
+For models with multiple inputs, different inputs require different calibration sets, which can also be achieved by using `NumpyObject`.
+
+The field ``input_configs`` supports configuring multiple inputs. ``tensor_name`` is used to specify the input name of the model. The following is a configuration example:
+
+.. code-block:: shell
+
+    {
+      "quant": {
+        "input_configs": [
+          {
+            "tensor_name": "DEFAULT", 
+            "calibration_dataset": "dataset.tar",
+            "calibration_size": -1,
+            "calibration_format": "NumpyObject", # 数据类型
+          },
+
+        ],
+      }
+    }
+
+~~~~~~~~~~~~~~~~~~~~~~~~~
+Prepare the dataset
+~~~~~~~~~~~~~~~~~~~~~~~~~    
+
+`NumpyObject` is a dictionary data type provided by `Numpy`. Dictionary data corresponds to `input` in the model, where `key` is the name of the `input` of the model.
+`value` is the calibration data, and its type and shape should be the same as the corresponding `input`, that is, the data directly input to the model after preprocessing, and the format is `numpy.ndarray`.
+The data processing of `value` is the same as :ref:`《Detailed Explanation of Loading Custom Datasets》 <custom_calib_dataset>`.
+
+Assume that the model has two inputs as shown below:
+
+.. figure:: ../media/multy_inputs.png
+        :alt: pipeline
+        :align: center
+
+The following is a simple example of how to generate code:
+
+.. code-block:: python
+
+    import numpy as np
+
+    calib_data = {}
+    calib_data["rgb"] = np.random.randn(1, 2, 3, 224, 224).astype(np.float32)
+    calib_data["inst_emb"] = np.random.randn(1, 384).astype(np.float32)
+
+    np.save("data.npy", calib_data)
+
+In a production environment, it is recommended to call the `dataloader` of the inference code, traverse it, convert the traversed data into the `Numpy.ndarray` type, and save it as a `NumpyObject` according to the dictionary, so that you can directly obtain the preprocessed data.
+
+.. _mix_precision_quantization:
 
 -----------------------------------------------------
 Detailed explanation of mixed precision quantization
@@ -790,7 +954,7 @@ Detailed explanation of mixed precision quantization
 Configuration
 ~~~~~~~~~~~~~~~~
 
-Modify the ``quant.layer_configs`` field. The currently supported enumerations for quantization precision are: ``U8``, ``U16``.
+Modify the ``quant.layer_configs`` field. The currently supported enumerations for quantization precision are: ``U8`` ， ``U16`` ， ``FP32``。
 The following is an example configuration:
 
 .. code-block:: shell
@@ -842,9 +1006,72 @@ The following is an example configuration:
       }
     }
 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Sub-image configuration instructions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When configuring a ``subgraph`` to a specific type, it is important to note that ``start_tensor_names`` and ``end_tensor_names`` specify ``tensor_name``, not ``node_name``.
+
+.. figure:: ../media/nodename_vs_tensorname.png
+        :alt: pipeline
+        :align: center
+
+If you want to configure the entire model for a certain quantization type, you can set ``start_tensor_names`` and ``end_tensor_names`` to ``[''DEFAULT'']``. Here is an example:
+
+.. code-block:: shell
+
+    {
+      "layer_configs": [ 
+          {
+              "start_tensor_names": ["DEFAULT"], # string of list
+              "end_tensor_names": ["DEFAULT"],   # string of list
+              "data_type": "U16"
+          }
+        ]
+    }
+
+The ``Conv`` type operator does not support the configuration of ``data_type`` as ``FP32``, but its output can be configured to support ``FP32`` separately, which can be achieved through the following configuration:
+
+.. code-block:: shell
+
+    {
+      "layer_configs": [ 
+          {
+            "op_type": "Conv", 
+            "data_type": "U8",
+            "output_data_type": "FP32", # 配置输出为FP32, 该配置目前只对Conv算子生效
+          }
+        ]
+    }
+
+The following is the configuration of the entire model except for ``Conv``, and the rest of the operators are quantized to ``FP32``:
+
+.. code-block:: shell
+
+    {
+      "layer_configs": [ 
+          {
+            "op_type": "Conv", 
+            "data_type": "U8",
+            "output_data_type": "FP32", # 配置输出为FP32, 该配置目前只对Conv算子生效
+          },
+          {
+              "start_tensor_names": ["DEFAULT"], # string of list
+              "end_tensor_names": ["DEFAULT"],   # string of list
+              "data_type": "FP32"
+          }
+        ]
+    }
+
 .. note::
 
-    If there are two quantization precision configurations ``layer_name`` and ``op_type`` for an operator, then the ``layer_name`` configuration has higher priority.
+    For an operator, there may be three quantization precision configurations: ``specified operator`` or ``a class of operators`` or ``a subgraph``. The priority is:
+    ``specified operator`` > ``a class of operators`` > ``a subgraph``
+
+.. attention::
+
+    Currently, the ``FP32`` configuration supports limited operators. The verified operators include ``LeayRelu`` ``Sigmoid`` ``Relu`` ``Add`` ``Mul`` ``Div``
+    ``Sub`` ``Concat`` ``Softmax``.
 
 ~~~~~~~~~~~~~~~~~~~~~~~~
 Compilation and results
@@ -913,7 +1140,7 @@ After compilation, a ``quant_axmodel.json`` file will be generated in the ``outp
       }
     }
 
-.. _change_input_size_en:
+.. _change_input_size:
 
 ------------------------------------
 Enter size modification
@@ -944,11 +1171,67 @@ During the model conversion process, the following log will appear, indicating t
 
 .. note::
 
-    Model input size modification occurs before input preprocessing.
+    The model input size modification occurs before quantization, and the size of the quantized dataset needs to be consistent with the modified size.
 
-    Multiple sets of inputs are separated by half-width semicolons. For details, please refer to the parameter detailed explanation section.
+    Multiple input groups are separated by semicolons. For details, refer to the parameter explanation section.
 
-.. _op_attr_patch_en:
+.. _multi_input_size:
+
+-------------------------------------------
+Configure model additional input dimensions
+-------------------------------------------
+
+By configuring the model compilation process, in addition to the main dimensions of the original model, additional sets of dimensions can be output. These dimensions will be saved in the same ``compiled.axmodel``.
+
+The same set of weight data will be reused between multiple groups of sizes (the quantization tool will quantize the model based on its original size). Users need to evaluate the accuracy issues that may be caused by the difference between the size during quantization and the size during inference.
+
+Next, we will take ``mobilenetv2`` as an example. Based on the original input size ``224*224``, we will add an additional size ``384*384``, and then select the size for simulation through the ``pulsar2 run`` tool.
+
+- Modify the configuration file. In the ``input_processors`` node, configure a ``src_extra_shapes`` child node for the input:
+
+.. code-block:: shell
+
+    {
+      ...
+      "input_processors": [
+        {
+          "tensor_name": "DEFAULT",
+          "tensor_format": "BGR",
+          "src_format": "BGR",
+          "src_dtype": "U8",
+          "src_layout": "NHWC",
+          "src_extra_shapes": [
+            {
+              "shape": [1, 3, 384, 384]
+            }
+          ],
+          "csc_mode": "NoCSC",
+          "csc_mat": [
+            1.164, 2.017, 0, -276.8, 1.164, -0.392, -0.813, 135.616, 1.164, 0,
+            1.596, -221.912
+          ]
+        }
+      ],
+      ...
+    }
+
+- During the model compilation process, the following log appears to confirm that the configuration is effective:  
+
+.. code-block:: shell
+
+    2024-01-01 21:27:02.082 | INFO     | yamain.command.build:compile_ptq_model:973 - extra input shape, index: 1, shape: {'data': (1, 3, 384, 384)}
+
+- After compilation, ``compiled.axmodel`` will contain two subgraphs of independent sizes, which can be used for inference separately.
+
+.. figure:: ../media/multi_shape_compiled_axmodel.png
+    :alt: multi_shape
+    :align: center
+
+- ``pulsar2 run`` includes ``--group_index`` parameter, which is used to select sub-graphs of different sizes for simulation. The default value of this parameter is 0, which corresponds to the sub-graph of the original resolution (224*224). 1 corresponds to the sub-graph of the additional resolution (384*384).
+
+- ``AXEngine`` For how to select different sizes when inferring models with additional input sizes, please refer to the ``AXEngine documentation``.
+
+.. _op_attr_patch:
 
 ------------------------------------
 Operator attribute modification
@@ -975,7 +1258,7 @@ When using pulsar2 build to convert the model, the following log will appear, in
 
     2023-05-07 18:47:34.274 | INFO     | yamain.command.load_model:op_attr_patch:488 - set op [pool6] attr [ceil_mode] to 1
 
-.. _const_patch_en:
+.. _const_patch:
 
 ------------------------------------
 Constant data modification
@@ -996,13 +1279,13 @@ Add the following content to the configuration file to modify the constant data 
       }
     ],
 
-When using pulsar2 build to convert the model, the following log will appear, indicating that the constant data has been modified successfully:
+When using ``pulsar2 build`` to convert the model, the following log will appear, indicating that the constant data has been modified successfully:
 
 .. code-block:: shell
 
     2023-05-07 18:15:41.464 | WARNING  | yamain.command.load_model:const_patch:512 - update data of const tensor [reshape_0_shape], (-1,, 96, 48), S64
 
-.. _transformer_optimize_en:
+.. _transformer_optimize:
 
 ----------------------------------------
 Transformer model configuration details
@@ -1106,7 +1389,7 @@ Finally, use the pulsar2 build command to compile, and you will get the ``compil
    
     Specify the input model type as Quantized ONNX through ``"model_type": "QuantONNX"`` in the configuration file.
 
-    Using a similar method, we can compile the yolov5s Quantized ONNX format model. We only need to replace it with the following configuration file for compilation:
+Using a similar method, we can compile the yolov5s Quantized ONNX format model. We only need to replace it with the following configuration file for compilation:
 
 .. code-block:: json
 
@@ -1144,4 +1427,25 @@ Finally, use the pulsar2 build command to compile, and you will get the ``compil
       "compiler": {
         "check": 0
       }
+    }
+
+------------------------------------
+Color space conversion configuration
+------------------------------------
+
+Support customers to add color space conversion function in the model through configuration, and the NPU completes the conversion from YUV to RGB. For detailed configuration, please refer to Pre-processing and Post-processing Parameters <processing_arg_details>
+
+.. code-block:: shell
+  
+    {
+      "input_processors": [
+        {
+          "tensor_name": "DEFAULT",
+          "tensor_format": "BGR",     
+          "src_format": "YUV420SP",   # Specify the input color space of the compiled model
+          "src_dtype": "U8",
+          "src_layout": "NHWC",
+          "csc_mode": "LimitedRange"
+        }
+      ]
     }
