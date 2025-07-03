@@ -30,24 +30,44 @@ This section introduces the complete use of the ``pulsar2 build`` command.
     usage: main.py build [-h] [--config] [--input] [--output_dir] [--output_name]
                          [--work_dir] [--model_type] [--target_hardware]
                          [--npu_mode] [--input_shapes]
-                         [--onnx_opt.disable_onnx_optimization]
-                         [--onnx_opt.enable_onnxsim] [--onnx_opt.model_check]
-                         [--onnx_opt.disable_transformation_check]
-                         [--quant.calibration_method] [--quant.precision_analysis]
+                         [--onnx_opt.disable_onnx_optimization ]
+                         [--onnx_opt.enable_onnxsim ] [--onnx_opt.model_check ]
+                         [--onnx_opt.disable_transformation_check ]
+                         [--onnx_opt.save_tensors_data ]
+                         [--quant.calibration_method]
+                         [--quant.precision_analysis ]
                          [--quant.precision_analysis_method]
                          [--quant.precision_analysis_mode]
-                         [--quant.highest_mix_precision]
+                         [--quant.highest_mix_precision ]
                          [--quant.conv_bias_data_type]
                          [--quant.refine_weight_threshold]
-                         [--quant.enable_smooth_quant]
+                         [--quant.enable_smooth_quant ]
+                         [--quant.smooth_quant_threshold]
+                         [--quant.smooth_quant_strength]
                          [--quant.transformer_opt_level]
                          [--quant.input_sample_dir] [--quant.ln_scale_data_type]
-                         [--compiler.static_batch_sizes [...]]
+                         [--quant.check] [--quant.disable_auto_refine_scale ]
+                         [--quant.enable_easy_quant ]
+                         [--quant.disable_quant_optimization ]
+                         [--quant.enable_brecq ] [--quant.enable_lsq ]
+                         [--quant.enable_adaround ] [--quant.finetune_epochs]
+                         [--quant.finetune_block_size]
+                         [--quant.finetune_batch_size] [--quant.finetune_lr]
+                         [--quant.device] [--compiler.static_batch_sizes [...]]
                          [--compiler.max_dynamic_batch_size]
-                         [--compiler.disable_ir_fix] [--compiler.check]
-                         [--compiler.debug] [--compiler.input_sample_dir]
+                         [--compiler.ddr_bw_limit] [--compiler.disable_ir_fix ]
+                         [--compiler.check] [--compiler.npu_perf ]
+                         [--compiler.check_mode] [--compiler.check_rtol]
+                         [--compiler.check_atol]
+                         [--compiler.check_cosine_simularity]
+                         [--compiler.check_tensor_black_list [...]]
+                         [--compiler.enable_slice_mode ]
+                         [--compiler.enable_tile_mode ]
+                         [--compiler.enable_data_soft_compression ]
+                         [--compiler.input_sample_dir]
     
-    optional arguments:
+    
+    options:
       -h, --help            show this help message and exit
       --config              config file path, supported formats: json / yaml /
                             toml / prototxt. type: string. required: false.
@@ -62,33 +82,37 @@ This section introduces the complete use of the ``pulsar2 build`` command.
       --model_type          input model type. type: enum. required: false.
                             default: ONNX. option: ONNX, QuantAxModel, QuantONNX.
       --target_hardware     target hardware. type: enum. required: false. default:
-                            AX650. option: AX650, AX620E, M76H.
+                            AX650. option: AX650, AX620E, AX615, M76H, M57.
       --npu_mode            npu mode. while ${target_hardware} is AX650, npu mode
                             can be NPU1 / NPU2 / NPU3. while ${target_hardware} is
-                            AX620E, npu mode can be NPU1 / NPU2. type: enum.
+                            AX620E or AX615, npu mode can be NPU1 / NPU2. type: enum.
                             required: false. default: NPU1.
-      --input_shapes        modify model input shape, this feature will take
-                            effect before the `input_processors` configuration.
-                            format: input1:1x3x224x224;input2:1x1x112x112. type:
-                            string. required: false. default: .
-      --onnx_opt.disable_onnx_optimization 
+      --input_shapes        modify model input shape of input model, this feature
+                            will take effect before the `input_processors`
+                            configuration. format:
+                            input1:1x3x224x224;input2:1x1x112x112. type: string.
+                            required: false. default: .
+      --onnx_opt.disable_onnx_optimization []
                             disable onnx optimization. type: bool. required:
                             false. default: false.
-      --onnx_opt.enable_onnxsim 
+      --onnx_opt.enable_onnxsim []
                             enable onnx simplify by
                             https://github.com/daquexian/onnx-simplifier. type:
                             bool. required: false. default: false.
-      --onnx_opt.model_check 
+      --onnx_opt.model_check []
                             enable model check. type: bool. required: false.
                             default: false.
-      --onnx_opt.disable_transformation_check 
+      --onnx_opt.disable_transformation_check []
                             disable transformation check. type: bool. required:
                             false. default: false.
+      --onnx_opt.save_tensors_data []
+                            save tensors data to optimize memory footprint. type:
+                            bool. required: false. default: false.
       --quant.calibration_method 
                             quantize calibration method. type: enum. required:
                             false. default: MinMax. option: MinMax, Percentile,
-                            MSE.
-      --quant.precision_analysis 
+                            MSE, KL.
+      --quant.precision_analysis []
                             enable quantization precision analysis. type: bool.
                             required: false. default: false.
       --quant.precision_analysis_method 
@@ -97,7 +121,7 @@ This section introduces the complete use of the ``pulsar2 build`` command.
       --quant.precision_analysis_mode 
                             precision analysis mode. type: enum. required: false.
                             default: Reference. option: Reference, NPUBackend.
-      --quant.highest_mix_precision 
+      --quant.highest_mix_precision []
                             enable highest mix precision quantization. type: bool.
                             required: false. default: false.
       --quant.conv_bias_data_type 
@@ -108,9 +132,16 @@ This section introduces the complete use of the ``pulsar2 build`` command.
                             number, like 1e-6. -1 means disable this feature.
                             type: float. required: false. default: 1e-6.
                             limitation: 0 or less than 0.0001.
-      --quant.enable_smooth_quant 
-                            enalbe smooth quant strategy for conv 1x1. type: bool.
-                            required: false. default: false.
+      --quant.enable_smooth_quant []
+                            enalbe smooth quant strategy. type: bool. required:
+                            false. default: false.
+      --quant.smooth_quant_threshold 
+                            smooth quant threshold. The larger the threshold, the
+                            more operators will be involved in performing
+                            SmoothQuant. limitation: 0~1.
+      --quant.smooth_quant_strength 
+                            smooth quant strength, a well-balanced point to evenly
+                            split the quantization difficulty.
       --quant.transformer_opt_level 
                             tranformer opt level. type: int. required: false.
                             default: 0. limitation: 0~2.
@@ -121,28 +152,92 @@ This section introduces the complete use of the ``pulsar2 build`` command.
                             LayerNormalization scale data type. type: enum.
                             required: false. default: FP32. option: FP32, S32,
                             U32.
+      --quant.check         quant check level, 0: no check; 1: check node dtype.
+                            type: int. required: false. default: 0.
+      --quant.disable_auto_refine_scale []
+                            refine weight scale and input scale, type: bool.
+                            required: false. default: false.
+      --quant.enable_easy_quant []
+                            enable easyquant; type bool. required: false. default:
+                            false.
+      --quant.disable_quant_optimization []
+                            disable quant optimization; type bool. required:
+                            false. default: false.
+      --quant.enable_brecq []
+                            enable brecq quantize strategy; type bool. required:
+                            false. default: false.
+      --quant.enable_lsq []
+                            enable lsq quantize strategy; type bool. required:
+                            false. default: false.
+      --quant.enable_adaround []
+                            enable adaround quantize strategy; type bool.
+                            required: false. default: false.
+      --quant.finetune_epochs 
+                            finetune epochs when enable finetune algorithm; type
+                            int32. required: false. default: 500.
+      --quant.finetune_block_size 
+                            finetune split block size when enable finetune
+                            algorithm; type int32. required: false. default: 4.
+      --quant.finetune_batch_size 
+                            finetune batch size when enable finetune algorithm;
+                            type int32. required: false. default: 1.
+      --quant.finetune_lr   learning rate when enable finetune algorithm; type
+                            float. required: false. default: 1e-3.
+      --quant.device        device for quant calibration. type: string. required:
+                            false. default: cpu. option: cpu, cuda:0, cuda:1, ...,
+                            cuda:7.
       --compiler.static_batch_sizes [ ...]
                             static batch sizes. type: int array. required: false.
                             default: [].
       --compiler.max_dynamic_batch_size 
                             max dynamic batch. type: int, required: false.
                             default: 0.
-      --compiler.disable_ir_fix 
+      --compiler.ddr_bw_limit 
+                            ddr bandwidth limit in GB, 0 means no limit. type:
+                            int. required: false. default: 0.
+      --compiler.disable_ir_fix []
                             disable ir fix, only work in multi-batch compilation.
                             type: bool. required: false. default: false.
-      --compiler.check      compiler check level, 0: no check; 1: simulate compile
-                            result; 2: simulate and check compile result (for
-                            debug). type: int. required: false. default: 0.
-      --compiler.debug      compiler debug level. type: int. required: false.
-                            default: 0.
+      --compiler.check      compiler check level, 0: no check; 1: assert all
+                            close; 2: assert all equal; 3: check cosine
+                            simularity. type: int. required: false. default: 0.
+      --compiler.npu_perf []
+                            dump npu perf information for profiling. type: bool.
+                            required: false. default: false.
+      --compiler.check_mode 
+                            compiler check mode, CheckOutput: only check model
+                            output; CheckPerLayer: check model intermediate tensor
+                            and output. type: enum. required: false. default:
+                            CheckOutput. option: CheckOutput, CheckPerLayer.
+      --compiler.check_rtol 
+                            relative tolerance when check level is 1. type: float.
+                            required: false. default: 1e-5.
+      --compiler.check_atol 
+                            absolute tolerance when check level is 1. type: float.
+                            required: false. default: 0.
+      --compiler.check_cosine_simularity 
+                            cosine simularity threshold when check level is 3.
+                            type: float. required: false. default: 0.999.
+      --compiler.check_tensor_black_list [ ...]
+                            tensor black list for per layer check, support regex.
+                            type: list of string. required: false. default: [].
+      --compiler.enable_slice_mode []
+                            enable slice mode scheduler. type: bool. required:
+                            false. default: false.
+      --compiler.enable_tile_mode []
+                            enable tile mode scheduler. type: bool. required:
+                            false. default: false.
+      --compiler.enable_data_soft_compression []
+                            enable data soft compression. type: bool. required:
+                            false. default: false.
       --compiler.input_sample_dir 
                             input sample data dir for compiler check. type:
                             string. required: false. default: .
 
 .. hint::
 
-  - Users can write configuration files in the format of ``json/yaml/toml/prototxt`` according to parameter specifications, and point to the configuration file through the command line parameter ``--config``
-  - Some compilation parameters support command line input and have higher priority than configuration files. Use pulsar2 build -h to view the supported command line compilation parameters. For example, the command line parameter ``--quant.calibration_method`` is equivalent to the ``calibration_method`` field of the ``QuantConfig`` structure is configured
+  - Users can write configuration files in ``json / yaml / toml / prototxt`` format according to parameter specifications, and point to the configuration file through the command line parameter ``--config``
+  - Some compilation parameters support command line input, and have higher priority than configuration files. Use ``pulsar2 build -h`` to view supported command line compilation parameters. For example, the command line parameter ``--quant.calibration_method`` is equivalent to configuring the ``calibration_method`` field of the ``QuantConfig`` structure
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Detailed explanation of parameters
@@ -240,35 +335,35 @@ Detailed explanation of parameters
 
     --quant
 
-        A member variable named quant in BuiildConfig
+        In BuildConfig is a member variable named quant
 
         - calibration_method
 
-            - type of data: enum
-            - required or not:  no
-            - default value: MinMax
-            - description： Quantization algorithm, supported enumerations ``MinMax``, ``Percentile``, ``MSE``, the structure can be found in :ref:`《Configuration File Detailed Description》 <config_details>`
+            - Data type: enum
+            - Required: No
+            - Default value: MinMax
+            - Description: Quantization algorithm, supported enumerations ``MinMax`` / ``Percentile`` / ``MSE`` / ``KL``, see :ref:`《Configuration file details》 <config_details>` for the structure
 
         - precision_analysis
 
-            - type of data: bool
-            - required or not:  no
-            - default value: false
-            - description： whether to analyze the quantification accuracy of Quant AXModel layer by layer
+            - Data type: bool
+            - Required: No
+            - Default value: false
+            - Description: Whether to analyze the quantization accuracy of Quant AXModel layer by layer
 
         - precision_analysis_method
 
-            - type of data: enum
-            - required or not:  no
-            - default value: PerLayer
-            - description： precision analysis method, optional PerLayer / EndToEnd. PerLayer means that each layer uses the layer input corresponding to the floating point model, and calculates the similarity between the output of each layer and the output of the floating point model. EndToEnd means that the first layer adopts floating point model input, then simulates the complete model, and calculates the similarity between the final output result and the floating point model output.
+            - Data type: enum
+            - Required: No
+            - Default value: PerLayer
+            - Description: Precision analysis method, optional ``PerLayer`` / ``EndToEnd``. ``PerLayer`` means that each layer uses the layer input corresponding to the floating-point model, and calculates the similarity between the output of each layer and the output of the floating-point model. ``EndToEnd`` means that the first layer uses the floating-point model input, and then simulates the complete model, and calculates the similarity between the final output result and the output of the floating-point model.
 
         - precision_analysis_mode
 
-            - type of data: enum
-            - required or not:  no
-            - default value: Reference
-            - description： Implementation of layer-by-layer simulation, optional Reference / NPUBackend. Reference can run all models supported by the compiler (supports models including CPU and NPU subgraphs), but the calculation results will have a small error compared to the final board results (basically the difference is within plus or minus 1, and there is no systematic error ). NPUBackend can run models containing only NPU subgraphs, but the calculation results are bit-aligned with the upper-board results.
+          - Data type: enum
+          - Required: No
+          - Default value: Reference
+          - Description: Implementation of layer-by-layer simulation, optional ``Reference`` / ``NPUBackend``. ``Reference`` can run all models supported by the compiler (supports models containing CPU and NPU subgraphs), but the calculation results will have a small error compared to the final board results (basically the difference is within plus or minus 1, and there is no systematic error). ``NPUBackend`` can run models containing only NPU subgraphs, but the calculation results are bit-aligned with the board results.
 
         - highest_mix_precision
 
@@ -297,6 +392,76 @@ Detailed explanation of parameters
             - required or not:  no
             - default value: false
             - description： enable smooth quant quantization strategy to improve quantization accuracy.
+
+        - enable_easy_quant
+
+            - Data type: bool
+            - Required: No
+            - Default value: false
+            - Description: Enable the easyquant quantization algorithm, which is a quantization method for searching weights and activation values ​​with high precision. Currently, it is implemented based on the CPU. After successfully enabling this function, half of the CPU will be occupied and it will take a long time. It is recommended to enable this function when the precision is insufficient and set the number of quantization data sets to more than 32. This quantization algorithm is referenced from https://arxiv.org/abs/2006.16669.
+
+        - disable_quant_optimization
+
+            - Data type: bool
+            - Required: No
+            - Default value: false
+            - Description: Disable the graph optimization function of the quantization part. The default value is false. During quantization, certain transformations will be made to the graph to eliminate or merge operators. This function is used to troubleshoot possible problems in the graph optimization process during quantization. Please note that enabling this function may cause a decrease in model performance.
+
+        - enable_brecq
+
+            - Data type: bool
+            - Required: No
+            - Default value: false
+            - Description: Whether to enable the BRECQ quantization algorithm.
+
+        - enable_lsq
+
+            - Data type: bool
+            - Required: No
+            - Default value: false
+            - Description: Whether to enable the LSQ quantization algorithm.
+
+        - enable_adaround
+
+            - Data type: bool
+            - Required: No
+            - Default value: false
+            - Description: Whether to enable the ADAROUND quantization algorithm.
+
+        - finetune_epochs
+
+            - Data type: int
+            - Required: No
+            - Default value: 500
+            - Description: Fine-tune the rounds when BRECQ / LSQ / ADAROUND quantization algorithms are enabled.
+
+        - finetune_block_size
+
+            - Data type: int
+            - Required: No
+            - Default value: 4
+            - Description: Block size when BRECQ / LSQ / ADAROUND quantization algorithms are enabled.
+        
+        - finetune_batch_size
+
+            - Data type: int
+            - Required: No
+            - Default value: 4
+            - Description: The batch size to set when enabling BRECQ / LSQ / ADAROUND quantization algorithms.
+
+        - finetune_lr
+
+            - Data type: float
+            - Required: No
+            - Default value: 1e-3
+            - Description: Learning rate size when BRECQ / LSQ / ADAROUND quantization algorithm is enabled.
+
+        - device
+
+            - Data type: float
+            - Required: No
+            - Default value: cpu
+            - Description: The device type used for calibration during quantization, supporting "cpu", "cuda:0", "cuda:1", "cuda:2", etc.
 
         - transformer_opt_level
 
@@ -364,38 +529,59 @@ Detailed explanation of parameters
 
         - check_mode
 
-          - type of data: enum
-          - required or not:  no
-          - default value: 0
-          - description：bisection mode, CheckOutput means that only the result is bisected. CheckPerLayer means bisection layer by layer.
+            - type of data: enum
+            - required or not:  no
+            - default value: 0
+            - description：bisection mode, CheckOutput means that only the result is bisected. CheckPerLayer means bisection layer by layer.
 
         - check_rtol
 
-          - type of data: float
-          - required or not:  no
-          - default value: 1e-5
-          - description：this parameter is effective when the --compiler.check parameter is 1. This parameter is the relative error parameter.
+            - type of data: float
+            - required or not:  no
+            - default value: 1e-5
+            - description：this parameter is effective when the --compiler.check parameter is 1. This parameter is the relative error parameter.
 
         - check_atol
 
-          - type of data: float
-          - required or not:  no
-          - default value: 0
-          - description：this parameter is effective when the --compiler.check parameter is 1. This parameter is the relative error parameter.
+            - type of data: float
+            - required or not:  no
+            - default value: 0
+            - description：this parameter is effective when the --compiler.check parameter is 1. This parameter is the relative error parameter.
 
         - check_cosine_simularity
 
-          - type of data: float
-          - required or not:  no
-          - default value: 0.999
-          - description：this parameter is only valid when the --compiler.check parameter is 3. This parameter specifies the tensor cosine similarity check threshold.
+            - type of data: float
+            - required or not:  no
+            - default value: 0.999
+            - description：this parameter is only valid when the --compiler.check parameter is 3. This parameter specifies the tensor cosine similarity check threshold.
 
         - check_tensor_black_list
 
-          - type of data: list of string
-          - required or not:  no
-          - default value: []
-          - description：a list of tensors that are not included in the check. Regular expression matching is supported.
+            - type of data: list of string
+            - required or not:  no
+            - default value: []
+            - description：a list of tensors that are not included in the check. Regular expression matching is supported.
+
+        - enable_slice_mode
+
+            - Data type: bool
+            - Required: No
+            - Default value: false
+            - Description: Enable slice mode scheduling strategy, which can greatly reduce the amount of ddr swap data to improve performance in some cases.
+
+        - enable_tile_mode
+
+            - Data type: bool
+            - Required: No
+            - Default value: false
+            - Description: Enable tile mode scheduling strategy, which can greatly reduce the amount of ddr swap data to improve performance in some cases.
+
+        - enable_data_soft_compression
+
+          - Data type: bool
+          - Required: No
+          - Default value: false
+          - Description: Enables software compression of NPU submodels in compiled.axmodel, which can reduce the size of compiled.axmodel, but will increase model loading time.
 
         - input_sample_dir
 
@@ -765,22 +951,27 @@ Open the ``output/quant/debug/precision_analysis.mmd`` file with an editing tool
 Detailed explanation of loading custom data sets
 -------------------------------------------------
 
-``pulsar2 build`` supports loading user-defined data sets for quantification, and supports ``.npy`` and ``.bin`` file formats with suffixes.
+In general, the model input is in ``RGB`` color space, and ``calibration_format`` is set to ``Image`` by default or set. When loading data during the quantization calibration process, the images in the calibration set will be normalized and scaled first.
+If the input is not in ``RGB`` color space, it is difficult for the toolchain to perceive what preprocessing needs to be done. ``pulsar2 build`` also supports loading user-defined datasets for quantization, and supports file formats with ``.npy`` and ``.bin`` suffixes.
+
+``calibration_format`` supports four formats: ``Image`` ``Numpy`` ``Binary`` ``NumpyObject``.
+
+.. note::
+
+    When using the quantized data formats of ``Numpy`` ``Binary`` ``NumpyObject``, the toolchain will directly load the data for quantization without preprocessing. Users are required to complete the data preprocessing by themselves to ensure that the data in the calibration set can be directly input into the model for inference and obtain correct results.
 
 ~~~~~~~~~~~~~~~~
 Prepare dataset
 ~~~~~~~~~~~~~~~~
 
-It is recommended that when processing images, try to be the same as the preprocessing during inference, and try to avoid using data enhancement during training. Some reference steps are as follows:
+When using a custom dataset, the recommended process for preparing the calibration dataset is as follows:
 
-     - read pictures
-     - Align image ``rbg channel`` sequentially to model input
-     - Zoom pictures
-     - Normalized
+1. Preprocess the data
 
-The above steps are for reference only and can be adjusted and deleted according to the actual situation. If some models do not require normalization of images, the normalization step can be omitted for such models.
+    - The preprocessing process should be strictly consistent with the processing process during inference
+    - The data type and shape of the calibration data must be exactly the same as the model input
 
-After processing the images, package the corresponding format files into compressed files.
+2. Save the calibration data in ``.npy`` or ``.bin`` format and compress it.
 
 .. note::
 
@@ -805,9 +996,7 @@ Modify the ``quant.input_configs.calibration_format`` field to ``Numpy`` or ``Bi
             "tensor_name": "input",
             "calibration_dataset": "./dataset/npy_dataset.tar",
             "calibration_size": 10,
-            "calibration_mean": [103.939, 116.779, 123.68],
-            "calibration_std": [58.0, 58.0, 58.0],
-            "calibration_format": "Numpy", # change to Numpy or Binary, the default is Image
+            "calibration_format": "Numpy", # 修改为 Numpy 或者 Binary, 默认是Image
           }
         ],
         "calibration_method": "MinMax",
@@ -978,7 +1167,15 @@ The following is an example configuration:
               "data_type": "U16"
             },
             {
+              "op_types": ["Sub"], # specifies the quantization precision of operators of type Sub
+              "data_type": "U16"
+            },
+            {
               "layer_name": "conv6_4", # specify the quantization precision of the conv6_4 operator
+              "data_type": "U16"
+            },
+            {
+              "layer_names": ["conv4_3"], # specify the quantization precision of the conv4_3 operator
               "data_type": "U16"
             },
             {
@@ -1285,7 +1482,83 @@ When using ``pulsar2 build`` to convert the model, the following log will appear
 
     2023-05-07 18:15:41.464 | WARNING  | yamain.command.load_model:const_patch:512 - update data of const tensor [reshape_0_shape], (-1,, 96, 48), S64
 
+.. _subgraph_compiler_option:
+
+----------------------------------------------
+Set separate compilation options for subgraphs
+----------------------------------------------
+
+By modifying the configuration file, you can set separate compilation options for the specified subgraph during the model conversion process.
+
+- Add a ``sub_configs`` node under the ``compiler`` node of the configuration file. By configuring ``start_tensor_names`` and ``end_tensor_names`` information under ``sub_configs``, you can specify the subgraph range that needs to configure compilation options separately.
+- The subgraph range configurations ``start_tensor_names`` and ``end_tensor_names`` need to be the tensor names in the model after the toolchain front-end graph is optimized. When compiling, set ``--debug.dump_frontend_graph`` to save the front-end optimized model in the output directory ``frontend/optimzied_quant_axmodel.onnx``. Use tools such as ``Netron`` to view the model information and determine the start and end tensor names of the subgraph.
+- All compilation options that can be configured under the ``compiler`` node (except ``sub_configs``) can be configured in the subgraph compilation options.
+- The subgraph compilation options that are not explicitly configured will inherit the configuration under the ``compiler`` node. For example, if ``check`` is configured to 1 in the ``compiler`` node, and ``check`` is not explicitly configured in the subgraph compilation options, the subgraph will inherit the configuration of the ``compiler`` node, and the value of ``check`` will be 1.
+- The subgraph that is configured with a separate compilation option will form a separate subgraph in the compilation result ``compiled.axmodel``.
+
+Next, based on ``mobilenetv2``, we will demonstrate the function of sub-graph separate compilation option:
+
+- Add the compilation option ``--debug.dump_frontend_graph`` in the original process, re-execute pulsar2 build, and then use the ``Netron`` tool to open the ``frontend/optimzied_quant_axmodel.onnx`` file in the output directory.
+- Confirm the subgraph range for configuring the compilation option separately. In the example, the subgraph starts with the tensor name ``op_37:AxQuantizedConv_out`` and ends with the tensor name ``op_5:AxQuantizedConv_out``.
+
+.. figure:: ../media/compiler_sub_configs_subgraph.png
+        :alt: compiler_sub_configs_subgraph
+        :align: center
+
+- Add the following content under the ``compiler`` node in the configuration file:
+
+.. code-block:: shell
+
+    "sub_configs": [
+      {
+        "start_tensor_names": ["op_37:AxQuantizedConv_out"],
+        "end_tensor_names": ["op_5:AxQuantizedConv_out"],
+        "check": 2
+      }
+    ]
+
+Using ``pulsar2 build`` to convert the model will result in the following log:
+
+
+.. code-block:: shell
+
+    2024-12-10 14:38:30.487 | INFO     | yamain.command.build:compile_ptq_model:1139 - subgraph [0], group: 0, type: GraphType.NPU
+    2024-12-10 14:38:30.487 | INFO     | yamain.command.build:compile_ptq_model:1139 - subgraph [1], group: 0, type: GraphType.NPU
+    2024-12-10 14:38:30.487 | INFO     | yamain.command.build:compile_ptq_model:1139 - subgraph [2], group: 0, type: GraphType.NPU
+
+This indicates that due to the subgraph configuration compilation option, the model was split into three parts for compilation, and the following log was generated when compiling subgraph 1:
+
+.. code-block:: shell
+
+    2024-12-10 14:38:30.694 | INFO     | yamain.command.npu_backend_compiler:compile:157 - compile npu subgraph [1]
+    tiling op...   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6/6 0:00:00
+    new_ddr_tensor = []
+    build op serially...   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 26/26 0:00:00
+    build op...   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 46/46 0:00:00
+    add ddr swap...   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 45/45 0:00:00
+    calc input dependencies...   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 56/56 0:00:00
+    calc output dependencies...   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 56/56 0:00:00
+    assign eu heuristic   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 56/56 0:00:00
+    assign eu onepass   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 56/56 0:00:00
+    assign eu greedy   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 56/56 0:00:00
+    2024-12-10 14:38:30.823 | INFO     | yasched.test_onepass:results2model:2593 - clear job deps
+    2024-12-10 14:38:30.823 | INFO     | yasched.test_onepass:results2model:2594 - max_cycle = 81,026
+    build jobs   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 56/56 0:00:00
+    2024-12-10 14:38:30.847 | INFO     | yamain.command.npu_backend_compiler:compile:209 - assemble model [1] [subgraph_npu_1] b1
+    2024-12-10 14:38:30.890 | INFO     | yamain.command.npu_backend_compiler:compile:228 - generate gt of npu graph [subgraph_npu_1]
+    2024-12-10 14:38:31.797 | INFO     | yamain.command.npu_backend_compiler:check_assembled_model:376 - simulate npu graph [subgraph_npu_1_b1]
+    2024-12-10 14:38:32.352 | SUCCESS  | yamain.common.util:check_data:206 - check npu graph [subgraph_npu_1_b1] [op_5:AxQuantizedConv_out], (1, 56, 56, 144), uint8 successfully!
+
+It can be seen that when compiling subgraph 1, the output result is checked because the check option configuration is turned on.
+
+- Three NPU sub-models also appear in the final output ``compiled.axmodel``. The names of the tensors that split the three models are the names specified in the sub-graph compilation options.
+
+.. figure:: ../media/compiler_sub_configs_axmodel.png
+        :alt: compiler_sub_configs_axmodel
+        :align: center
+
 .. _transformer_optimize:
+
 
 ----------------------------------------
 Transformer model configuration details
@@ -1449,3 +1722,71 @@ Support customers to add color space conversion function in the model through co
         }
       ]
     }
+
+
+.. attention::
+
+    Conversion from ``RGB`` to ``BGR`` or ``BGR`` to ``RBG`` is currently not supported.
+
+--------------------------------------------------------------------
+Detailed explanation of advanced quantitative strategy configuration
+--------------------------------------------------------------------
+
+Supports customers to configure advanced quantitative strategies. Currently, it supports quantitative strategies such as ``ADAROUND``, ``LSQ``, and ``BRECQ``. These quantitative strategies can often achieve better accuracy by fine-tuning weights and activation values ​​on the data set.
+
+When using it, the machine needs to have a ``GPU`` that supports ``CUDA``. When starting ``docker``, it is also necessary to add support for ``gpu``. The reference command is as follows:
+
+.. code-block:: shell
+
+    sudo docker run -it --net host --rm --runtime=nvidia --gpus all -v $PWD:/data pulsar2:${version}
+
+The configuration reference is as follows:
+
+.. code-block:: shell
+  
+    {
+      "quant": {
+        "input_configs": [
+          {
+            "tensor_name": "DEFAULT",
+            "calibration_dataset": "dataset.tar",
+            "calibration_format": "Binary", # It is recommended to use binary to ensure consistency between preprocessing and inference, so that fine-tuning is close to the floating-point model and better accuracy is achieved.
+            "calibration_size": 128, # calibration size, recommended 128-512 cards
+          }
+        ],
+        "calibration_method": "MinMax",
+        "enable_adaround": true, # Enable adaround quantization strategy
+        "finetune_block_size": 3, # Setting block size
+        "finetune_lr": 1e-4, # Setting the learning rate
+        "finetune_epochs": 100, # Set fine-tuning epoch, lsq and brecq are recommended to be set to 10, and adaround is recommended to be set to 50
+        "device": "cuda:0"
+    },
+
+When the following ``log`` appears, it means that the policy is set successfully:
+
+.. code-block:: shell
+
+    Calibration Progress(Phase 1): 100%|███████████████████████████████████████████████████████████████████| 128/128 [00:01<00:00, 20.16it/s]
+    [16:40:41] AX Adaround Reconstruction Running ...         
+
+    Check following parameters:
+    Is Scale Trainable:        True
+    Interested Layers:         []
+    Collecting Device:         cuda
+    Num of blocks:             51
+    Learning Rate:             0.0001
+    Steps:                     50
+    Gamma:                     1.0
+    Batch Size:                1
+
+    # Block [1 / 51]: [['207'] -> ['211']]
+    # Tuning Procedure : 100%|█████████████████████████████████████████████████████████████████████████████| 50/50 [00:11<00:00,  4.55it/s]
+    # Tuning Finished  : (0.0185 -> 0.0065) [Block Loss]
+
+    # Block [2 / 51]: [['211'] -> ['213']]
+    # Tuning Procedure : 100%|█████████████████████████████████████████████████████████████████████████████| 50/50 [00:06<00:00,  8.23it/s]
+    # Tuning Finished  : (0.0014 -> 0.0011) [Block Loss]
+
+.. attention::
+
+    The current ``torch`` version in ``docker`` is 2.5, and the ``cuda`` version is 11.8. When using them, you need to pay attention to whether the machine is compatible.

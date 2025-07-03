@@ -2,42 +2,178 @@
 Accuracy Tuning Suggestions
 =========================================
 
------------------------
-Basic Troubleshooting
------------------------
+During the deployment process, some accuracy loss is inevitable. This document is used to guide users to troubleshoot accuracy loss.
 
-After quantization of floating-point model, it is inevitable that there will be a certain degree of accuracy loss. In order to measure the accuracy loss, a set of quantization accuracy analysis tools is provided in the compilation stage, and the cosine similarity is used to judge whether the accuracy of the model before and after quantization meets the expectation.
-Under normal circumstances, when the cosine similarity of the final output layer of the model is > 98%, the accuracy of the quantized model can be considered normal at this time, and the next stage of deployment can be carried out.
+Usually, you can roughly judge the accuracy loss during the model conversion process by comparing the accuracy of each layer.
+The method to enable it is as follows:
+
+.. code-block:: bash
+
+
+    {
+        ...
+        "quant": {
+            "precision_analysis": true,
+            "precision_analysis_mode": "NPUBackend",
+            "precision_analysis_method": "EndToEnd"
+        },
+        ...
+    }
+
+In this way, a layer-by-layer cosine similarity table will be output during the compilation process. If the cosine similarity of the final output layer of the model is larger than *98%* , it can be roughly judged that the accuracy of the quantized model is normal, and the accuracy can be verified on the board.
+
+If the above indicators are not achieved or the actual board accuracy error of the model is large, we recommend that you refer to the following chapters for accuracy tuning.
+
+---------------------------
+Causes of loss of precision
+---------------------------
+
+There are many reasons for precision loss, which can be roughly divided into two categories: **model conversion precision loss and deployment precision loss** .
+
+Model conversion precision loss refers to the precision loss caused by floating point quantization to low bit and hardware implementation differences during the execution of ``Pulsar2 build``.
+
+Deployment precision loss refers to the precision loss caused by the misalignment of pre-processing and post-processing during the conversion of training-side code to actual deployment code.
+
+**We recommend that you first check the precision loss in the deployment process, and then check the model conversion precision loss. **
+
+---------------------------
+Deployment accuracy loss
+---------------------------
+
+During deployment, misalignment of front-end and back-end processing is often a significant cause of accuracy loss.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Eliminate distractions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To avoid interference when troubleshooting pre- and post-processing problems, in the configuration file, ``input_processors`` should be explicitly configured to be consistent with the floating-point model. For example, for an input with shape ``1x3x224x224``, the configuration file should be as follows:
+
+.. code-block:: bash
+
+    {
+      ...
+      "input_processors": [
+        {
+          "tensor_name": "DEFAULT",
+          "tensor_format": "BGR",
+          "tensor_layout": "NCHW",
+          "src_format": "BGR",
+          "src_dtype": "FP32",
+          "src_layout": "NCHW",
+          "mean": [0,0,0],
+          "std": [1,1,1]
+        }
+      ],
+      "output_processors": [
+        {
+          "tensor_name": "DEFAULT"
+        }
+      ],
+      ...
+    }
+
+After the compilation is complete, you can use ``netron`` to check whether the compiled ``compiled.axmodel`` input is consistent with the type and shape of the floating-point model. For example:
+
+.. figure:: ../media/input_keep_float.png
+    :alt: pipeline
+    :align: center
+
+This ensures that the compiled model has the same input and output types as the floating-point model.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Alignment pre- and post-processing
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The following process is used to align the pre- and post-processing during board loading and the pre- and post-processing during inference in the training phase.
+
+.. figure:: ../media/verify-preprocess-postprocess.png
+    :alt: pipeline
+    :align: center
+
+- For single data, use the Python inference code during training to save the original input, preprocessed data, model output, and post-processed data into a bin file; the results can be visualized here to ensure the correctness of the output
+- Board test preprocessing: read the original data saved in the previous step as input, get the board preprocessed results, ** compare with the preprocessed data saved in the previous step, when the error between the two is within 0.0001 (1e-4), the error is considered to be in line with expectations, that is, (a - b) < 0.0001**.
+- Board test postprocessing: read the model output saved in the first step as the model output, and calculate the postprocessing, get the board postprocessing results, ** compare with the postprocessed data saved in the first step, when the element-by-element comparison error between the two is within 0.001 (1e-3), the error is considered to be in line with expectations. **.
+
+.. hint::
+    The python implementation `pyaxengine <https://github.com/AXERA-TECH/pyaxengine>`_ is also available on GitHub. Its interface is fully aligned with onnxruntime and can be used to eliminate the precision loss caused by the misalignment of front and back processing.
+
+--------------------------------
+Model conversion accuracy loss
+--------------------------------
+
+Model conversion will also cause a certain loss of accuracy. We recommend that you follow the process of basic problem troubleshooting and quantitative accuracy tuning.
+
+~~~~~~~~~~~~~~~~~~~~~
+Basic troubleshooting
+~~~~~~~~~~~~~~~~~~~~~
+
+When troubleshooting accuracy issues, first confirm the following options before tuning accuracy:
+
+- mean/std is consistent with that used during training: If the format of the dataset used for quantization is ``Image``, please make sure that ``calibration_mean`` and ``calibration_std`` under ``input_configs`` in ``quant`` are consistent with those used during training.
+- BGR and RGB formats: If the format of the dataset used for quantization is ``Image``, please make sure that ``tensor_layout`` in ``input_processors`` is consistent with that used during training.
+- Is the quantization dataset correct:
+    - The calibration images should be as similar as possible to the usage scenarios
+    - Is the number of calibration sets rich enough to cover all categories as much as possible
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Quantization accuracy tuning
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Improve model accuracy by changing the quantization strategy. Currently, you can try ``MSE`` ``Percentile`` ``MinMax``, which corresponds to ``calibration_method`` in the ``quant`` field.
+
+.. figure:: ../media/precision_analysis_step1.png
+    :alt: pipeline
+    :align: center
+
+If the cosine similarity is still low after changing the quantization strategy, you can adjust the quantization bit width according to the cosine similarity in ``Quant Precision Table 【PerLayer Reference】``. The specific process is shown in the figure below.
+
+.. figure:: ../media/precision_analysis_step2.png
+    :alt: pipeline
+    :align: center
 
 .. note::
+    It should be noted that the cosine similarity of the quantitative accuracy analysis tool in the compilation stage is not equivalent to the accuracy drop on the test dataset (such as ``AP``, ``mAP``).
+    If you want to understand the detailed accuracy drop of the dataset, it is recommended to use the compiled model to test the model accuracy using the dataset.
 
-    It should be noted that the cosine similarity of the quantization precision analysis tool at the compile stage is not equivalent to the accuracy drop on the test data set(Such as ``AP`` ， ``mAP`` )。
-    To obtain detailed data set accuracy drops, it is recommended to use the compiled model board to test the model accuracy using the data set.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Hardware precision implementation differences
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-This chapter will have some basic terms:
+The option ``"precision_analysis_mode"`` in the configuration file can have two optional values:
 
-- ** Quantization Strategy ** : Refers to the strategy used to calculate the floating point distribution range to obtain quantization parameters, corresponding to the ``calibration_method`` of the ``quant`` field in the configuration.
+- "Reference" : When performing layer-by-layer accuracy comparison, the inference engine of the quantized model is the reference implementation, and the actual operator inference is performed using the ``PyTorch / Numpy`` implementation.
 
-- ** Quantization bit width ** : refers to the input and output bit width of the operator after quantization, which can be configured through the layer_configs of the quant field.
+- "NPUBackend" : When performing layer-by-layer accuracy comparison, the inference engine of the quantized model is the backend simulation implementation, and the corresponding ``NPU Backend`` simulation implementation is used.
 
-When encountering accuracy problems, first confirm the following options, and then perform precision tuning according to the following sections:
-
-- mean/std consistent with training: If the quantization is using a data set in the format Image, make sure that calibration_mean and calibration_std in quant are the same as they were during training.
-- BGR and RGB format: If the quantization is using data sets in the format Image, make sure that tensor_layout in input_processors is the same as it was during training.
-- Ensure the alignment between Python pre and post processing during training and C++ pre and post processing when running on the board. Please refer to Q&A for the alignment method.
-- If 'csc_mode' is set to **YUYV422, UYVY422, YUV420SP, YVU420SP**, it is recommended to use **IVE TDP to resize** when testing accuracy on the board. This preprocessing is aligned with Opencv's 'bilinear' interpolation method.
-- Quantifying whether the data set is correct:
-  - Calibration picture and use scene as much as possible
-  - Whether the number of calibration sets is rich enough to cover all categories as far as possible
+It is expected that the results of "Reference" and "NPUBackend" are close. If the difference is large, there may be some errors in the ``NPU Backend`` simulation operator implementation. In this case, it is recommended to feedback the detailed log to FAE.
 
 
----------------------------
-Common accuracy problems
----------------------------
+-------------------------------------
+Quantitative chemical single template
+-------------------------------------
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-How to set the model to all U16?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Please fill in the following items in detail and submit to FAE/AE.
+
+- Experience with other platforms
+    - Have you deployed on other platforms before?
+    - Corresponding manufacturers, chip models, and corresponding toolchain versions
+    - Quantization scripts or configuration files for other platforms
+    - Commands for executing quantization on other platforms
+    - Corresponding dataset indicators: floating point accuracy/board runtime accuracy/accuracy indicators
+- Provide a minimum reproducible case:
+    - onnx floating point model
+    - Single image test case of onnx floating point model, either python or C++ is OK
+    - config.json configuration file
+    - Minimum dataset for quantization
+    - Pulsar2 compilation command
+
+-----------------------
+Q&A
+-----------------------
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+How to set the model to full U16?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: shell
 
@@ -59,26 +195,9 @@ Why configure the ``Add`` operator quantization bit width is ``U16`` in the cosi
 - The output of the quantized model may be different from the input type, and the operator output type and configuration in the cosine similarity table will often be different, because the input type of the next operator may not be configured to be the same bit width, then the output type of the operator will be set to the input type of the next operator to improve the inference performance. This optimization does not affect accuracy.
 - If data transfer class operators such as ``Reshape/Transpose``, setting the type of the class operators will not take effect. Their types are determined by the downstream type of the calculation class operators.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-How to align before and after processing?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The misalignment of pre and post processing is usually an important reason affecting the accuracy of the upper board. In order to troubleshoot the problem of pre and post processing, we recommend following steps:
-
-.. figure:: ../media/verify-preprocess-postprocess.png
-    :alt: pipeline
-    :align: center
-
-
-- Single data. Save the original input, pre-processed data, model output and post-processed data into bin files using the Python side during training; Here you can visualize the results to ensure that the output is correct
-- C++ side test preprocessing: Read the original data saved in the previous step as input, get the C++ pre-processed result, **compared with the pre-processed data saved in the previous step, when the error between the two is within 0.0001 (1e-4), it is considered that the error is in line with the expectation, that is, (a-b) < 0.0001**.
-- C++ end test post-processing: read the model output saved in the first step, as the model output, and calculate the post-processing, get the result after C++ end processing, **compared with the post-processing data saved in the first step, when the error is within 0.001 (1e-3), it is considered that the error is in line with the expectation. That is, (a-b) < 0.001**.
-
-
-
-~~~~~~~~~~~~~~~~~~
-outlier
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+What to do if the outlier is too large?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The following log appears in the model, indicating that there are a lot of ``outliers`` in the activation value of the model, we recommend using the ``smooth quant`` function to reduce these ``outliers``.
 
@@ -129,54 +248,9 @@ This feature can be enabled by configuring ``enable_smooth_quant`` in the ``quan
 
     The method comes from the paper  `SmoothQuant <https://arxiv.org/abs/2211.10438>`_
 
------------------------
-Precision tuning steps
------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~
+csc mode configuration
+~~~~~~~~~~~~~~~~~~~~~~~~
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Change quantization strategy
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-To improve the accuracy of the model by changing the quantization strategy, one can try ``MSE`` ``Percentile`` ``MinMax``, corresponding to ``calibration_method`` in the ``quant`` field.
-
-.. figure:: ../media/precision_analysis_step1.png
-    :alt: pipeline
-    :align: center
-
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Mixing precision tuning Settings
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-If the cosine similarity is still low after changing the quantization strategy, the quantization bit width can be adjusted according to the cosine similarity in the ``Quant Precision Table [PerLayer Reference]``, as shown in the following figure.
-
-.. figure:: ../media/precision_analysis_step2.png
-    :alt: pipeline
-    :align: center
-
-
------------------------------------
-Measuring chemical sheet template
------------------------------------
-
-Please fill in the details below and submit to FAE/AE.
-
-- Other platform experience
-    - Whether it has been deployed on other platforms
-    - Corresponding manufacturer, chip model, and toolchain version
-    - Quantization scripts or configuration files for other platforms
-    - Other platforms execute quantization commands
-    - Corresponding data set metrics: floating point accuracy/on-board runtime accuracy/accuracy metrics
-- Provide the smallest reproducible case:
-    - onnx floating point model
-    - Single image test cases for onnx floating-point models, either python or C++
-    - config.json configuration file
-    - Minimum data set for quantization
-    - Compile command of Pulsar2
-- If the original model and data set cannot be provided due to data security, it is necessary to provide:
-   - Floating-point model with random weights
-   - Complete compilation log
-   - After precision analysis is enabled ("precision_analysis": true, "precision_analysis_method" : "EndToEnd"), output/quant/debug is packaged.
-   - config.json configuration file
-   - Minimum data set for quantization
-   - Pulsar2 Indicates the compilation command
+- If ``csc_mode`` is set to anything other than **YUYV422, UYVY422, YUV420SP, YVU420SP**, it is recommended to use **IVE TDP for resize** when testing the accuracy on the board. This preprocessing is aligned with the `bilinear` interpolation method of Opencv.
+- The csc conversion does not include ``RGB2BGR`` and ``BGR2RGB``. When ``src_format`` is configured as ``BGR`` or ``BGR``, no conversion is actually performed in the compiled model.

@@ -4,8 +4,8 @@ Quick Start(AX620E)
 
 **This section applies to the following platforms:**
 
-- AX630C
-- AX620Q
+- AX630C、AX631
+- AX620Q、AX620QP、AX620QZ
 
 This section introduces the basic operations of ``ONNX`` model conversion, and uses the ``pulsar2`` tool to compile the ``ONNX`` model into the ``axmodel`` model. Please refer to the :ref:`《Development Environment Preparation》 <dev_env_prepare>` section to complete the development environment setup.
 The example model in this section is the open source model ``MobileNetv2``.

@@ -39,10 +39,9 @@ Take the system version of ``Ubuntu 20.04`` and the tool chain ``ax_pulsar2_${ve
 
     In actual operation, be sure to replace ${version} with the corresponding toolchain version number.
 
-How to obtain the tool chain:
+How to get the toolchain:
 
-- `BaiDu Pan <https://pan.baidu.com/s/1FazlPdW79wQWVY-Qn--qVQ?pwd=sbru>`_
-- `Google Drive <https://drive.google.com/drive/folders/10rfQIAm5ktjJ1bRMsHbUanbAplIn3ium?usp=sharing>`_
+- Released by AXera technical support staff after signing an NDA with AXera through the enterprise route.
 
 ^^^^^^^^^^^^^^^^^^^^^^^
 Load Docker Image

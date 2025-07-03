@@ -35,7 +35,7 @@ Complete json configuration reference
       "work_dir": "",
       // input model type. type: enum. required: false. default: ONNX. option: ONNX, QuantAxModel, QuantONNX.
       "model_type": "ONNX",
-      // target hardware. type: enum. required: false. default: AX650. option: AX650, AX620E, M76H.
+      // target hardware. type: enum. required: false. default: AX650. option: AX650, AX620E, M76H, M57.
       "target_hardware": "AX650",
       // npu mode. while ${target_hardware} is AX650, npu mode can be NPU1 / NPU2 / NPU3. while ${target_hardware} is AX620E, npu mode can be NPU1 / NPU2. type: enum. required: false. default: NPU1.
       "npu_mode": "NPU1",
@@ -112,10 +112,10 @@ Complete json configuration reference
             "data_type": "U16"
           }
         ],
-        // quantize calibration method. type: enum. required: false. default: MinMax. option: MinMax, Percentile, MSE.
+        // quantize calibration method. type: enum. required: false. default: MinMax. option: MinMax, Percentile, MSE, KL.
         "calibration_method": "MinMax",
         // enable quantization precision analysis. type: bool. required: false. default: false.
-        "precision_analysis": true,
+        "precision_analysis": false,
         // precision analysis method. type: enum. required: false. default: PerLayer. option: PerLayer, EndToEnd.
         "precision_analysis_method": "PerLayer",
         // precision analysis mode. type: enum. required: false. default: Reference. option: Reference, NPUBackend.
@@ -130,14 +130,38 @@ Complete json configuration reference
         "ln_scale_data_type": "FP32",
         // refine weight threshold, should be a legal float number, like 1e-6. -1 means disable this feature. type: float. required: false. default: 1e-6. limitation: 0 or less than 0.0001.
         "refine_weight_threshold": 1e-6,
-        // enalbe smooth quant strategy for conv 1x1. type: bool. required: false. default: false.
+        // enalbe smooth quant strategy. type: bool. required: false. default: false.
         "enable_smooth_quant": false,
+        // smooth quant threshold. The larger the threshold, the more operators will be involved in performing SmoothQuant. limitation: 0~1.
+        "smooth_quant_threshold": 2e-1,
+        // smooth quant strength, a well-balanced point to evenly split the quantization difficulty.
+        "smooth_quant_strength": 6e-1,
         // tranformer opt level. type: int. required: false. default: 0. limitation: 0~2.
         "transformer_opt_level": 0,
         // quant check level, 0: no check; 1: check node dtype. type: int. required: false. default: 0.
         "check": 0,
         // refine weight scale and input scale, type: bool. required: false. default: false.
-        "disable_auto_refine_scale": false
+        "disable_auto_refine_scale": false,
+        // enable easyquant; type bool. required: false. default: false.
+        "enable_easy_quant": false,
+        // disable quant optimization; type bool. required: false. default: false.
+        "disable_quant_optimization": false,
+        // enable brecq quantize strategy; type bool. required: false. default: false.
+        "enable_brecq": false,
+        // enable lsq quantize strategy; type bool. required: false. default: false.
+        "enable_lsq": false,
+        // enable adaround quantize strategy; type bool. required: false. default: false.
+        "enable_adaround": false,
+        // finetune epochs when enable finetune algorithm; type int32. required: false. default: 500.
+        "finetune_epochs": 500,
+        // finetune split block size when enable finetune algorithm; type int32. required: false. default: 4.
+        "finetune_block_size": 4,
+        // finetune batch size when enable finetune algorithm; type int32. required: false. default: 1.
+        "finetune_batch_size": 1,
+        // learning rate when enable finetune algorithm; type float. required: false. default: 1e-3.
+        "finetune_lr": 1e-3,
+        // device for quant calibration. type: string. required: false. default: cpu. option: cpu, cuda:0, cuda:1, ..., cuda:7.
+        "device": "cpu"
       },
       "input_processors": [
         {
@@ -153,10 +177,8 @@ Complete json configuration reference
           "src_layout": "NHWC",
           // input data type in runtime. type: enum. required: false. default: FP32. option: U8, S8, U16, S16, U32, S32, FP16, FP32.
           "src_dtype": "U8",
-    
           // extra compiler shapes for this input. src_extra_shapes size of every input should be the same. shape at the same index of every input will be treated as a input group which can inference independently at runtime. type: list of Shape. required: false. default [].
           "src_extra_shapes": [],
-    
           // color space mode. type: enum. required: false. default: NoCSC. option: NoCSC, Matrix, FullRange, LimitedRange.
           "csc_mode": "NoCSC",
           // color space conversion matrix, 12 elements array that represents a 3x4 matrix. type: float array. required: false. default: [].
@@ -216,6 +238,8 @@ Complete json configuration reference
         "static_batch_sizes": [],
         // max dynamic batch. type: int, required: false. default: 0.
         "max_dynamic_batch_size": 0,
+        // ddr bandwidth limit in GB, 0 means no limit. type: int. required: false. default: 0.
+        "ddr_bw_limit": 0,
         // disable ir fix, only work in multi-batch compilation. type: bool. required: false. default: false.
         "disable_ir_fix": false,
         // compiler check level, 0: no check; 1: assert all close; 2: assert all equal; 3: check cosine simularity. type: int. required: false. default: 0.
@@ -233,10 +257,19 @@ Complete json configuration reference
         // tensor black list for per layer check, support regex. type: list of string. required: false. default: [].
         "check_tensor_black_list": [],
         // input sample data dir for compiler check. type: string. required: false. default: .
-        "input_sample_dir": ""
+        "input_sample_dir": "",
+        // enable slice mode scheduler. type: bool. required: false. default: false.
+        "enable_slice_mode": false,
+        // enable tile mode scheduler. type: bool. required: false. default: false.
+        "enable_tile_mode": false,
+        // enable data soft compression. type: bool. required: false. default: false.
+        "enable_data_soft_compression": false
       }
     }
+
+
 .. _config_define:
+
 
 ------------------------------------
 Quantitative parameter description
@@ -417,6 +450,29 @@ proto configuration definition
       FullRange = 2;
       LimitedRange = 3;
     }
+
+    enum ScheduleStrategy {
+      Tile = 0;
+      Slice = 1;
+    }
+    
+    enum MatchMode {
+      Op = 0;
+      Tensor = 1;
+    }
+    
+    message Node {
+      repeated string types = 1;
+      repeated string inputs = 2;
+      repeated string outputs = 3;
+      .google.protobuf.Struct properties = 4;
+    }
+    
+    message Graph {
+      repeated Node nodes = 1;
+      ScheduleStrategy type = 2;
+      MatchMode match_mode = 3;
+    }
     
     message InputQuantConfig {
       // input tensor name in origin model. "DEFAULT" means input config for all input tensors. type: string. required: true.
@@ -478,7 +534,7 @@ proto configuration definition
       repeated InputQuantConfig input_configs = 1;
       repeated LayerConfig layer_configs = 2;
     
-      // quantize calibration method. type: enum. required: false. default: MinMax. option: MinMax, Percentile, MSE.
+      // quantize calibration method. type: enum. required: false. default: MinMax. option: MinMax, Percentile, MSE, KL.
       QuantMethod calibration_method = 3;
       // enable quantization precision analysis. type: bool. required: false. default: false.
       bool precision_analysis = 4;
@@ -492,18 +548,42 @@ proto configuration definition
       common.DataType conv_bias_data_type = 8;
       // refine weight threshold, should be a legal float number, like 1e-6. -1 means disable this feature. type: float. required: false. default: 1e-6. limitation: 0 or less than 0.0001.
       float refine_weight_threshold = 9;
-      // enalbe smooth quant strategy for conv 1x1. type: bool. required: false. default: false.
+      // enalbe smooth quant strategy. type: bool. required: false. default: false.
       bool enable_smooth_quant = 10;
+      // smooth quant threshold. The larger the threshold, the more operators will be involved in performing SmoothQuant. limitation: 0~1.
+      float smooth_quant_threshold = 20;
+      // smooth quant strength, a well-balanced point to evenly split the quantization difficulty.
+      float smooth_quant_strength = 30;
       // tranformer opt level. type: int. required: false. default: 0. limitation: 0~2.
-      int32 transformer_opt_level = 20;
+      int32 transformer_opt_level = 40;
       // input sample data dir for precision analysis. type: string. required: false. default: .
-      string input_sample_dir = 30;
+      string input_sample_dir = 50;
       // LayerNormalization scale data type. type: enum. required: false. default: FP32. option: FP32, S32, U32.
-      common.DataType ln_scale_data_type = 40;
+      common.DataType ln_scale_data_type = 60;
       // quant check level, 0: no check; 1: check node dtype. type: int. required: false. default: 0.
-      int32 check = 50;
+      int32 check = 70;
       // refine weight scale and input scale, type: bool. required: false. default: false.
-      bool disable_auto_refine_scale = 60;
+      bool disable_auto_refine_scale = 80;
+      // enable easyquant; type bool. required: false. default: false.
+      bool enable_easy_quant = 90;
+      // disable quant optimization; type bool. required: false. default: false.
+      bool disable_quant_optimization = 100;
+      // enable brecq quantize strategy; type bool. required: false. default: false.
+      bool enable_brecq = 110;
+      // enable lsq quantize strategy; type bool. required: false. default: false.
+      bool enable_lsq = 120;
+      // enable adaround quantize strategy; type bool. required: false. default: false.
+      bool enable_adaround = 130;
+      // finetune epochs when enable finetune algorithm; type int32. required: false. default: 500.
+      int32 finetune_epochs = 140;
+      // finetune split block size when enable finetune algorithm; type int32. required: false. default: 4.
+      int32 finetune_block_size = 150;
+      // finetune batch size when enable finetune algorithm; type int32. required: false. default: 1.
+      int32 finetune_batch_size = 160;
+      // learning rate when enable finetune algorithm; type float. required: false. default: 1e-3.
+      float finetune_lr = 170;
+      // device for quant calibration. type: string. required: false. default: cpu. option: cpu, cuda:0, cuda:1, ..., cuda:7.
+      string device = 180;
     }
     
     message InputProcessor {
@@ -579,26 +659,43 @@ proto configuration definition
       // static batch sizes. type: int array. required: false. default: [].
       repeated int32 static_batch_sizes = 1;
       // max dynamic batch. type: int, required: false. default: 0.
-      int32 max_dynamic_batch_size = 2;
+      optional int32 max_dynamic_batch_size = 2;
+      // ddr bandwidth limit in GB, 0 means no limit. type: int. required: false. default: 0.
+      optional float ddr_bw_limit = 12;
       // disable ir fix, only work in multi-batch compilation. type: bool. required: false. default: false.
-      bool disable_ir_fix = 3;
+      optional bool disable_ir_fix = 3;
       // compiler check level, 0: no check; 1: assert all close; 2: assert all equal; 3: check cosine simularity. type: int. required: false. default: 0.
-      int32 check = 5;
+      optional int32 check = 5;
       // dump npu perf information for profiling. type: bool. required: false. default: false.
-      bool npu_perf = 6;
+      optional bool npu_perf = 6;
       // compiler check mode, CheckOutput: only check model output; CheckPerLayer: check model intermediate tensor and output. type: enum. required: false. default: CheckOutput. option: CheckOutput, CheckPerLayer.
-      CheckMode check_mode = 7;
+      optional CheckMode check_mode = 7;
       // relative tolerance when check level is 1. type: float. required: false. default: 1e-5.
-      float check_rtol = 8;
+      optional float check_rtol = 8;
       // absolute tolerance when check level is 1. type: float. required: false. default: 0.
-      float check_atol = 9;
+      optional float check_atol = 9;
       // cosine simularity threshold when check level is 3. type: float. required: false. default: 0.999.
-      float check_cosine_simularity = 10;
+      optional float check_cosine_simularity = 10;
       // tensor black list for per layer check, support regex. type: list of string. required: false. default: [].
       repeated string check_tensor_black_list = 11;
+      // enable slice mode scheduler. type: bool. required: false. default: false.
+      optional bool enable_slice_mode = 13;
+      // enable tile mode scheduler. type: bool. required: false. default: false.
+      optional bool enable_tile_mode = 52;
+      // enable data soft compression. type: bool. required: false. default: false.
+      optional bool enable_data_soft_compression = 14;
       // input sample data dir for compiler check. type: string. required: false. default: .
-      string input_sample_dir = 30;
+      optional string input_sample_dir = 30;
+      repeated Graph compiler_group_patterns = 15;
+    
+      // sub compiler configs. type: CompilerConfig. required: false. default: [].
+      repeated CompilerConfig sub_configs = 60;
+      // start tensor names of subgraph compiler config, only can be configured in sub compiler config. type: string array. required: false. default: [].
+      repeated string start_tensor_names = 50;
+      // end tensor names of subgraph compiler config, only can be configured in sub compiler config. type: string array. required: false. default: [].
+      repeated string end_tensor_names = 51;
     }
+    
     
     message BuildConfig {
       // input model file path. type: string. required: true.
