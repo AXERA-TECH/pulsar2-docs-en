@@ -6,6 +6,7 @@ Quick Start(AX650)
 
 - AX650A
 - AX650N
+- AX8850
 - M76H
 
 This section introduces the basic operations of ``ONNX`` model conversion, and uses the ``pulsar2`` tool to compile the ``ONNX`` model into the ``axmodel`` model. Please refer to the :ref:`《Development Environment Preparation》 <dev_env_prepare>` section to complete the development environment setup.
@@ -281,45 +282,36 @@ By using ``onnx inspect --io ${axmodel/onnx_path}`` to view the input and output
 .. code-block:: shell
 
     root@xxx:/data# onnx inspect -m -n -t output/compiled.axmodel
+
+
     Failed to check model output/compiled.axmodel, statistic could be inaccurate!
-    Inpect of model output/compiled.axmodel
-    ================================================================================
-      Graph name: 8
-      Graph inputs: 1
-      Graph outputs: 1
-      Nodes in total: 1
-      ValueInfo in total: 4
-      Initializers in total: 2
-      Sparse Initializers in total: 0
-      Quantization in total: 0
-    
-    Meta information:
+    Meta information
     --------------------------------------------------------------------------------
-      IR Version: 8
+      IR Version: 10
       Opset Import: [domain: ""
-    version: 16
+    version: 18
     ]
       Producer name: Pulsar2
       Producer version: 
       Domain: 
-      Doc string: Pulsar2 Version:  2.4
-    Pulsar2 Commit: 2064a8ee
+      Doc string: Pulsar2 Version:  4.0
+    Pulsar2 Commit: 64a0e58f
       meta.{} = {} extra_data CgsKBWlucHV0EAEYAgoICgZvdXRwdXQSATEaQQoOc3ViZ3JhcGhfbnB1XzBSLwoVc3ViZ3JhcGhfbnB1XzBfYjFfbmV1EAEaFAoGcGFyYW1zGgpucHVfcGFyYW1zIgA=
-    
-    Node information:
+    Node information
     --------------------------------------------------------------------------------
       Node type "neu mode" has: 1
     --------------------------------------------------------------------------------
       Node "subgraph_npu_0": type "neu mode", inputs "['input']", outputs "['output']"
-    
-    Tensor information:
+    Tensor information
     --------------------------------------------------------------------------------
-      ValueInfo "input": type UINT8, shape [1, 224, 224, 3],
       ValueInfo "npu_params": type UINT8, shape [4085516],
-      ValueInfo "subgraph_npu_0_b1_neu": type UINT8, shape [56592],
+      ValueInfo "npu_dyn_params": type UINT8, shape [0],
+      ValueInfo "input": type UINT8, shape [1, 224, 224, 3],
+      ValueInfo "subgraph_npu_0_b1_neu": type UINT8, shape [57200],
       ValueInfo "output": type FLOAT, shape [1, 1000],
       Initializer "npu_params": type UINT8, shape [4085516],
-      Initializer "subgraph_npu_0_b1_neu": type UINT8, shape [56592],
+      Initializer "npu_dyn_params": type UINT8, shape [0],
+      Initializer "subgraph_npu_0_b1_neu": type UINT8, shape [57200],
 
 .. _model_simulator:
 

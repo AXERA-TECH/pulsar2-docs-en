@@ -35,3 +35,6 @@
 | V029 | 2024-07-22 | Pulsar2 3.1 |
 | V030 | 2024-09-25 | Pulsar2 3.2 |
 | V031 | 2024-09-29 | modification on FUSA review comments |
+| V032 | 2024-12-10 | Pulsar2 3.3 |
+| V033 | 2025-03-03 | Pulsar2 3.4 |
+| V034 | 2025-04-29 | Pulsar2 4.0 |
