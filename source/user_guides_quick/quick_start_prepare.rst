@@ -39,9 +39,7 @@ Take the system version of ``Ubuntu 20.04`` and the tool chain ``ax_pulsar2_${ve
 
     In actual operation, be sure to replace ${version} with the corresponding toolchain version number.
 
-How to get the toolchain:
-
-- Released by AXera technical support staff after signing an NDA with AXera through the enterprise route.
+How to get the toolchain: https://huggingface.co/AXERA-TECH/Pulsar2/tree/main/4.2
 
 ^^^^^^^^^^^^^^^^^^^^^^^
 Load Docker Image
