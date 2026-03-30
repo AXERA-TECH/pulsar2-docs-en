@@ -24,16 +24,16 @@ This section introduces the **NPU** supports for the ``ONNX`` operator in ``M57`
 | ArgMax                | | axis: Unlimited                           |
 |                       | | keepdims: Unlimited                       |
 |                       | | select_last_index: Only supports          |
-|                       | |                    setting to 0           |
+|                       |                      setting to 0           |
 +-----------------------+---------------------------------------------+
 | ArgMin                | | axis: Unlimited                           |
 |                       | | keepdims: Unlimited                       |
 |                       | | select_last_index: Only supports          |
-|                       | |                    setting to 0           |
+|                       |                      setting to 0           |
 +-----------------------+---------------------------------------------+
 | AveragePool           | | auto_pad: Only supports NOTSET            |
 |                       | | count_include_pad: Only supports          |
-|                       | |                    setting to 1           |
+|                       |                      setting to 1           |
 |                       | | kernel_shape: Unlimited                   |
 |                       | | pads: Unlimited                           |
 |                       | | strides: Unlimited                        |
@@ -66,8 +66,8 @@ This section introduces the **NPU** supports for the ``ONNX`` operator in ``M57`
 |                       | | pads: Unlimited                           |
 |                       | | strides: Unlimited                        |
 |                       | | note: The efficiency would be lower when  |
-|                       | |    using DepthWise/Group Conv and dilation|
-|                       | |  not equals to 1                          |
+|                       |      using DepthWise/Group Conv and dilation|
+|                       |    not equals to 1                          |
 +-----------------------+---------------------------------------------+
 | ConvTranspose         | | auto_pad: Only supports NOTSET            |
 |                       | | dilations:  currently only setting to 1   |
@@ -77,7 +77,7 @@ This section introduces the **NPU** supports for the ``ONNX`` operator in ``M57`
 |                       | | pads: Unlimited                           |
 |                       | | strides: Unlimited                        |
 |                       | | note: The efficiency would be lower in    |
-|                       | |          DepthWise ConvTranspose.         |
+|                       |            DepthWise ConvTranspose.         |
 |                       |                                             |
 |                       | output_padding: output_padding_h <=         |
 |                       | pads_bottom, output_padding_w <=            |

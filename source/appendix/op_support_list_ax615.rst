@@ -22,17 +22,17 @@ This section introduces the **NPU** supports for the ``ONNX`` operator in ``AX61
 | ArgMax                | | axis: Unlimited                           |
 |                       | | keepdims: Unlimited                       |
 |                       | | select_last_index: Only supports setting  |
-|                       | |                    to 0                   |
+|                       |                      to 0                   |
 +-----------------------+---------------------------------------------+
 | ArgMin                | | axis: Unlimited                           |
 |                       | | keepdims: Unlimited                       |
 |                       | | select_last_index: Only supports setting  |
-|                       | |                    to 0                   |
+|                       |                      to 0                   |
 +-----------------------+---------------------------------------------+
 | AveragePool           | | auto_pad: Only supports NOTSET            |
 |                       | | ceil_mode: Unlimited                      |
 |                       | | count_include_pad: Only supports setting  |
-|                       | |                    to 1                   |
+|                       |                      to 1                   |
 |                       | | kernel_shape: Unlimited                   |
 |                       | | pads: Unlimited                           |
 |                       | | strides: Unlimited                        |
@@ -192,29 +192,29 @@ This section introduces the **NPU** supports for the ``ONNX`` operator in ``AX61
 | ReduceL2              | | axes: Unlimited                           |
 |                       | | keepdims: Unlimited                       |
 |                       | | noop_with_empty_axes: This parameter is   |
-|                       | |                       not supported yet   |
+|                       |                         not supported yet   |
 +-----------------------+---------------------------------------------+
 | ReduceMax             | | axes: Unlimited                           |
 |                       | | keepdims: Unlimited                       |
 |                       | | noop_with_empty_axes: This parameter is   |
-|                       | |                       not supported yet   |
+|                       |                         not supported yet   |
 +-----------------------+---------------------------------------------+
 | ReduceMax             | | axes: Unlimited                           |
 |                       | | keepdims: Unlimited                       |
 |                       | | noop_with_empty_axes: This parameter is   |
-|                       | |                       not supported yet   |
+|                       |                         not supported yet   |
 +-----------------------+---------------------------------------------+
 | ReduceMean            | | axes: Unlimited                           |
 |                       | | keepdims: Unlimited                       |
 |                       | | noop_with_empty_axes: This parameter is   |
-|                       | |                       not supported yet   |
+|                       |                         not supported yet   |
 +-----------------------+---------------------------------------------+
 | Relu                  | Unlimited                                   |
 +-----------------------+---------------------------------------------+
 | Reshape               | shape: Unlimited                            |
 +-----------------------+---------------------------------------------+
 | Resize                | | mode: Supported options: "nearest" and    |
-|                       | |       "linear"                            |
+|                       |         "linear"                            |
 |                       | | scales: Unlimited                         |
 |                       |                                             |
 |                       | nearest_mode:                               |
