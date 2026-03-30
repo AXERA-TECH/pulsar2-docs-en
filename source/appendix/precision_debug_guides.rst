@@ -34,7 +34,7 @@ Model conversion precision loss refers to the precision loss caused by floating 
 
 Deployment precision loss refers to the precision loss caused by the misalignment of pre-processing and post-processing during the conversion of training-side code to actual deployment code.
 
-**We recommend that you first check the precision loss in the deployment process, and then check the model conversion precision loss. **
+**We recommend that you first check the precision loss in the deployment process, and then check the model conversion precision loss.**
 
 ---------------------------
 Deployment accuracy loss
@@ -91,8 +91,8 @@ The following process is used to align the pre- and post-processing during board
     :align: center
 
 - For single data, use the Python inference code during training to save the original input, preprocessed data, model output, and post-processed data into a bin file; the results can be visualized here to ensure the correctness of the output
-- Board test preprocessing: read the original data saved in the previous step as input, get the board preprocessed results, ** compare with the preprocessed data saved in the previous step, when the error between the two is within 0.0001 (1e-4), the error is considered to be in line with expectations, that is, (a - b) < 0.0001**.
-- Board test postprocessing: read the model output saved in the first step as the model output, and calculate the postprocessing, get the board postprocessing results, ** compare with the postprocessed data saved in the first step, when the element-by-element comparison error between the two is within 0.001 (1e-3), the error is considered to be in line with expectations. **.
+- Board test preprocessing: read the original data saved in the previous step as input, get the board preprocessed results, **compare with the preprocessed data saved in the previous step, when the error between the two is within 0.0001 (1e-4), the error is considered to be in line with expectations, that is, (a - b) < 0.0001**.
+- Board test postprocessing: read the model output saved in the first step as the model output, and calculate the postprocessing, get the board postprocessing results, **compare with the postprocessed data saved in the first step, when the element-by-element comparison error between the two is within 0.001 (1e-3), the error is considered to be in line with expectations.**.
 
 .. hint::
     The python implementation `pyaxengine <https://github.com/AXERA-TECH/pyaxengine>`_ is also available on GitHub. Its interface is fully aligned with onnxruntime and can be used to eliminate the precision loss caused by the misalignment of front and back processing.

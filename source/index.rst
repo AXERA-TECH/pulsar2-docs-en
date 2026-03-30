@@ -28,14 +28,24 @@ AXera Pulsar2 Toolchain Instructions Manual
   user_guides_quick/quick_start_ax620e.rst
   user_guides_quick/quick_start_ax615.rst
   user_guides_quick/quick_start_m57.rst
+  user_guides_quick/quick_start_ax637.rst
   user_guides_advanced/advanced_build_guides.rst
   user_guides_advanced/advanced_run_guides.rst
   user_guides_advanced/advanced_deploy_guides.rst
   user_guides_config/config.rst
-  other_tools/caffe_to_onnx.rst
   other_tools/ax_run_model.rst
-  other_tools/convert_to_4w8f.rst
   tool_classification/functional_safety.rst
+
+.. toctree::
+  :maxdepth: 2
+  :numbered:
+  :caption: Other Tools
+  :name: Other Tools
+
+  other_tools/caffe_to_onnx.rst
+  other_tools/convert_to_4w4f.rst
+  other_tools/polygrapy_extract.rst
+  other_tools/profiling.rst
 
 .. toctree::
   :maxdepth: 1
@@ -45,7 +55,10 @@ AXera Pulsar2 Toolchain Instructions Manual
 
   appendix/op_support_list_ax650.rst
   appendix/op_support_list_ax620e.rst
+  appendix/op_support_list_ax615.rst
   appendix/op_support_list_m57.rst
+  appendix/op_support_list_ax637.rst
   appendix/precision_debug_guides.rst
   appendix/build_llm.rst
-  
+  appendix/model_convert_examples.rst
+  appendix/advanced_config_examples.rst

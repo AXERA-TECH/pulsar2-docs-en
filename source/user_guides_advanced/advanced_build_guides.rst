@@ -1618,7 +1618,7 @@ In order to support customers' self-quantized models (including 4-bit QAT quanti
 
 The following takes the resnet50 and yolov5s 4w8f models as examples to demonstrate how to compile models in Quantized ONNX format.
 
-First, please download the model we have converted, :download:`Click to download resnet50 <../examples/resnet50_qdq_4w8f.onnx>`, :download:`Click to download yolov5s <../examples/yolov5s_qdq_4w8f.onnx>`
+First, please download the model we have converted, :download:`Click to download resnet50 <../examples/resnet50_qdq_4w4f.onnx>`, :download:`Click to download yolov5s <../examples/yolov5s_qdq_4w8f.onnx>`
 
 Then use the following configuration file for resnet50:
 

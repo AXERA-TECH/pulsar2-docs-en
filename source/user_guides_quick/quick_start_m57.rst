@@ -238,7 +238,7 @@ Among them, ``compiled.axmodel`` is the ``.axmodel`` model file that can be run 
 
 .. note::
 
-Since ``.axmodel`` is developed based on the **ONNX** model storage format, changing the ``.axmodel`` file suffix to ``.axmodel.onnx`` can support being directly opened by the network model graphical tool **Netron**.
+  Since ``.axmodel`` is developed based on the **ONNX** model storage format, changing the ``.axmodel`` file suffix to ``.axmodel.onnx`` can support being directly opened by the network model graphical tool **Netron**.
 
     .. figure:: ../media/axmodel-netron.png
         :alt: pipeline

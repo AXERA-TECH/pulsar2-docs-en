@@ -169,8 +169,8 @@ This section introduces the **NPU** supports for the ``ONNX`` operator in ``M57`
 |                       | | initial_h: Unlimited                      |
 |                       | | initial_c: Unlimited                      |
 |                       | | P: Not supported yet                      |
-|                       | direction:                                  |
-|                       | Supports "bidirectional","reverse","forward"|
+|                       | | direction: Supports "bidirectional",      |
+|                       |              "reverse","forward"            |
 +-----------------------+---------------------------------------------+
 | LogSoftmax            | Unlimited                                   |
 +-----------------------+---------------------------------------------+

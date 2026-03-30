@@ -149,8 +149,8 @@ This section introduces the **NPU** supports for the ``ONNX`` operator in ``AX63
 |                       | | initial_h: Unlimited                      |
 |                       | | initial_c: Unlimited                      |
 |                       | | P: Not supported yet                      |
-|                       | direction:                                  |
-|                       | Supports "bidirectional","reverse","forward"|
+|                       | | direction: Supports "bidirectional",      |
+|                       |             "reverse", "forward"            |
 +-----------------------+---------------------------------------------+
 | LeakyRelu             | Unlimited                                   |
 +-----------------------+---------------------------------------------+
