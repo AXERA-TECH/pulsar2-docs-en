@@ -641,13 +641,13 @@ The compilation command of `pulsar2 build` as follows:
 root@xxx:/data# pulsar2 build --input model/mobilenetv2-sim.onnx --output_dir output --config config/mobilenet_v2_build_config.json
 ```
 
-(multi-batch-compile)=
+(multi_batch_compile)=
 
 ## Detailed explanation of multi-batch compilation
 
 `pulsar2 build` supports users to configure the batch_size of the model, which is divided into two modes: static multi-batch and dynamic multi-batch compilation. These two modes are mutually exclusive. This chapter uses `AX650` as an example.
 
-(multi-batch-static-compile)=
+(multi-batch-static_compile)=
 
 ### Static multi-batch mode
 
@@ -662,7 +662,7 @@ Taking the mobilenetv2 model as an example, the original model input `input` sha
 After static multi-batch compilation with `static_batch_sizes` equal to [1, 2, 4], the shape will become `[4, 224, 224, 3]`.
 :::
 
-(multi-batch-dynamic-compile)=
+(multi-batch-dynamic_compile)=
 
 ### Dynamic multi-batch mode
 
@@ -714,7 +714,7 @@ In addition, if the user does not explicitly configure the operator attribute mo
 pulsar2 supports configuring `0` or `-1` in the shape of `Reshape`. `0` represents the same value as the corresponding dimension of the input tensor; `-1` represents the unknown dimension size calculated based on the input tensor.
 :::
 
-(perlayer-precision-debug)=
+(perlayer_precision_debug)=
 
 ## Detailed explanation layer by layer
 
@@ -923,7 +923,7 @@ For more details, please refer to {ref}`《Quantitative Precision Analysis Param
 If `"precision_analysis": false` is in the configuration file and the compilation command contains `--quant.precision_analysis 1`, the precision comparison function will still be enabled.
 :::
 
-(custom-calib-dataset)=
+(custom_calib_dataset)=
 
 ## Detailed explanation of loading custom data sets
 
@@ -1098,7 +1098,7 @@ np.save("data.npy", calib_data)
 
 In a production environment, it is recommended to call the `dataloader` of the inference code, traverse it, convert the traversed data into the `Numpy.ndarray` type, and save it as a `NumpyObject` according to the dictionary, so that you can directly obtain the preprocessed data.
 
-(mix-precision-quantization)=
+(mix_precision_quantization)=
 
 ## Detailed explanation of mixed precision quantization
 
@@ -1297,7 +1297,7 @@ After compilation, a `quant_axmodel.json` file will be generated in the `output/
 }
 ```
 
-(change-input-size)=
+(change_input_size)=
 
 ## Enter size modification
 
@@ -1328,7 +1328,7 @@ The model input size modification occurs before quantization, and the size of th
 Multiple input groups are separated by semicolons. For details, refer to the parameter explanation section.
 :::
 
-(multi-input-size)=
+(multi_input_size)=
 
 ## Configure model additional input dimensions
 
@@ -1382,7 +1382,7 @@ Next, we will take `mobilenetv2` as an example. Based on the original input size
 - `pulsar2 run` includes `--group_index` parameter, which is used to select sub-graphs of different sizes for simulation. The default value of this parameter is 0, which corresponds to the sub-graph of the original resolution (224\*224). 1 corresponds to the sub-graph of the additional resolution (384\*384).
 - `AXEngine` For how to select different sizes when inferring models with additional input sizes, please refer to the `AXEngine documentation`.
 
-(op-attr-patch)=
+(op_attr_patch)=
 
 ## Operator attribute modification
 
@@ -1407,7 +1407,7 @@ When using pulsar2 build to convert the model, the following log will appear, in
 2023-05-07 18:47:34.274 | INFO     | yamain.command.load_model:op_attr_patch:488 - set op [pool6] attr [ceil_mode] to 1
 ```
 
-(const-patch)=
+(const_patch)=
 
 ## Constant data modification
 
@@ -1432,7 +1432,7 @@ When using `pulsar2 build` to convert the model, the following log will appear, 
 2023-05-07 18:15:41.464 | WARNING  | yamain.command.load_model:const_patch:512 - update data of const tensor [reshape_0_shape], (-1,, 96, 48), S64
 ```
 
-(subgraph-compiler-option)=
+(subgraph_compiler_option)=
 
 ## Set separate compilation options for subgraphs
 
@@ -1506,7 +1506,7 @@ It can be seen that when compiling subgraph 1, the output result is checked beca
 :alt: compiler_sub_configs_axmodel
 :::
 
-(transformer-optimize)=
+(transformer_optimize)=
 
 ## Transformer model configuration details
 

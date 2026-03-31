@@ -7,7 +7,7 @@ This section provides configuration examples for common `pulsar2 build` scenario
 - `tensor_name` must match the actual tensor names defined in the ONNX model. You can check them via `onnx inspect --io model.onnx`
 :::
 
-(rgb-input-config)=
+(rgb_input_config)=
 
 ## RGB input
 
@@ -166,7 +166,7 @@ If there is no `op:` line between `preprocess tensor [input]` and `postprocess t
 The combination of `tensor_format` and `src_format` does **not** support RGB ↔ BGR channel swapping, and the compiled model will not reorder channels. Color space conversion is only used in the {ref}`YUV input <yuv_input_config>` scenario.
 :::
 
-(yuv-input-config)=
+(yuv_input_config)=
 
 ## YUV input
 
@@ -296,7 +296,7 @@ Just change `src_format` to `YVU420SP`:
 - When validating accuracy on board, if `src_format` is YUV, it is recommended to use **IVE TDP for resize**. This preprocessing is aligned with OpenCV bilinear interpolation.
 :::
 
-(static-batch-config)=
+(static_batch_config)=
 
 ## Static batch configuration
 
@@ -351,7 +351,7 @@ Take mobilenetv2 as an example. The original input shape is `[1, 224, 224, 3]`. 
 - If the model contains the `Reshape` operator, you may need to use the {ref}`Constant Data Patch <const_patch>` feature to change the batch dimension of shapes to `-1` or `0`.
 :::
 
-(dynamic-batch-config)=
+(dynamic_batch_config)=
 
 ## Dynamic batch configuration
 
@@ -411,7 +411,7 @@ At runtime, the inference framework automatically splits the workload:
 - batch=9 → internally runs batch 4 + batch 4 + batch 1 (three inferences)
 :::
 
-(multi-input-config)=
+(multi_input_config)=
 
 ## Multi-input configuration
 
@@ -495,7 +495,7 @@ When an ONNX model has multiple inputs (such as stereo vision, image + mask, mul
 `tensor_name` must match the actual input names in the ONNX model. For simulation run, you need to prepare a bin file for each input, and the file name must match the tensor name.
 :::
 
-(skip-onnxsim-config)=
+(skip_onnxsim_config)=
 
 ## Skip onnxslim (onnxsim)
 

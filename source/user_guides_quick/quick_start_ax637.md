@@ -74,7 +74,7 @@ The `tensor_name` field in `input_processors`, `output_processors` and `quant` n
 
 For more details, please refer to {ref}`Configuration File Detailed Description <config_details>`.
 
-(model-compile-ax637)=
+(model_compile_ax637)=
 
 ## Compile and execute
 
@@ -255,7 +255,7 @@ Tensor information:
   Initializer "npu_0_b1_data": type UINT8, shape [173256],
 ```
 
-(model-simulator-20e)=
+(model_simulator_20e)=
 
 ## Simulation Run
 
@@ -325,7 +325,7 @@ root@xxx:/data/pulsar2-run-helper# python3 cli_classification.py --post_processi
 [I] 6.8679, 463
 ```
 
-(onboard-running-20e)=
+(onboard_running_20e)=
 
 ## Development board running
 

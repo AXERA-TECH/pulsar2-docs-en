@@ -9,7 +9,7 @@
 :alt: pipeline
 :::
 
-(pulsar-run)=
+(pulsar_run)=
 
 ## Detailed explanation of simulation operation
 

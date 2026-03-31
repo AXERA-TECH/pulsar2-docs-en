@@ -8,7 +8,7 @@ This section provides `pulsar2 build` conversion examples for typical models, in
 - The input/output tensor names must match the actual ONNX definitions. You can check them via `onnx inspect --io model.onnx`
 :::
 
-(convert-yolov5s)=
+(convert_yolov5s)=
 
 ## YOLOv5s (object detection)
 
@@ -165,7 +165,7 @@ build op...   ━━━━━━━━━━━━━━━━━━━━━━
 On-board inference latency is about `6.32 ms` (AX650). For a complete on-board runtime example, please refer to [AXERA-TECH/YOLOv5](https://huggingface.co/AXERA-TECH/YOLOv5).
 :::
 
-(convert-yolo11s)=
+(convert_yolo11s)=
 
 ## YOLO11s (object detection)
 
@@ -323,7 +323,7 @@ build op...   ━━━━━━━━━━━━━━━━━━━━━━
 Compared with YOLOv5, YOLO11 adopts an attention mechanism (including `MatMul` and `Softmax` operators). The model is larger but provides higher detection accuracy. On-board inference latency is about `25 ms` (AX650). For a complete on-board runtime example, please refer to [AXERA-TECH/YOLO11](https://huggingface.co/AXERA-TECH/YOLO11).
 :::
 
-(convert-depth-anything-v2)=
+(convert-depth-anything_v2)=
 
 ## Depth-Anything-V2 (monocular depth estimation)
 
@@ -494,7 +494,7 @@ The end-to-end conversion takes about `8 minutes`. Smooth Quant analysis and per
 On-board inference latency is about `33 ms` (AX650, NPU3 3-core mode). For a Python inference example, please refer to [AXERA-TECH/Depth-Anything-V2](https://huggingface.co/AXERA-TECH/Depth-Anything-V2). [pyaxengine](https://github.com/AXERA-TECH/pyaxengine) is required.
 :::
 
-(convert-cnclip)=
+(convert_cnclip)=
 
 ## CN-CLIP (Chinese multimodal text encoder)
 

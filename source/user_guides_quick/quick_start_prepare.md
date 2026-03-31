@@ -4,7 +4,7 @@ This section describes the development environment preparations before using the
 
 `Pulsar2` uses `Docker` container for toolchain integration. Users can load `Pulsar2` image files through `Docker`, and then perform model conversion, compilation, simulation, etc. Therefore, in the development environment preparation stage, you only need to correctly install the `Docker` environment. Supported systems are `MacOS`, `Linux`, `Windows`.
 
-(dev-env-prepare)=
+(dev_env_prepare)=
 
 ## Install the Docker development environment
 
@@ -72,7 +72,7 @@ version: ${version}
 commit: xxxxxxxx
 ```
 
-(prepare-data)=
+(prepare_data)=
 
 #### Data preparation
 

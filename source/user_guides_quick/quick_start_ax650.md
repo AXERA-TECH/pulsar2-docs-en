@@ -77,7 +77,7 @@ The `tensor_name` field in `input_processors`, `output_processors` and `quant` n
 
 For more details, please refer to {ref}`Configuration File Detailed Description <config_details>`.
 
-(model-compile)=
+(model_compile)=
 
 ## Compile and execute
 
@@ -301,7 +301,7 @@ Tensor information
   Initializer "subgraph_npu_0_b1_neu": type UINT8, shape [57200],
 ```
 
-(model-simulator)=
+(model_simulator)=
 
 ## Simulation Run
 
@@ -371,7 +371,7 @@ root@xxx:/data/pulsar2-run-helper# python3 cli_classification.py --post_processi
 [I] 7.6603, 287
 ```
 
-(onboard-running)=
+(onboard_running)=
 
 ## Development board running
 

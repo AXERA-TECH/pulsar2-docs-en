@@ -1,4 +1,4 @@
-(config-details)=
+(config_details)=
 
 # Configuration file details
 
@@ -261,7 +261,7 @@ This section will introduce the **config** file in `pulsar2 build` in detail.
 }
 ```
 
-(config-define)=
+(config_define)=
 
 ## Quantitative parameter description
 
@@ -272,7 +272,7 @@ This section will introduce the **config** file in `pulsar2 build` in detail.
 - The `layer_name` and `op_type` options in `layer_configs` cannot be configured at the same time.
 - `transformer_opt_level` sets optimization options for the `Transformer` model.
 
-(quant-precision-analysis-config-define)=
+(quant-precision-analysis-config_define)=
 
 ## Quantitative precision analysis parameter description
 
@@ -286,7 +286,7 @@ This section will introduce the **config** file in `pulsar2 build` in detail.
   > - `PerLayer` means that each layer uses the layer input corresponding to the floating point model, and calculates the similarity between the output of each layer and the output of the floating point model.
   > - `EndToEnd` means that the first layer adopts floating point model input, then simulates the complete model, and calculates the similarity between the final output result and the floating point model output.
 
-(processing-arg-details)=
+(processing_arg_details)=
 
 ## Preprocessing and postprocessing parameter description
 

@@ -74,7 +74,7 @@ The `tensor_name` field in `input_processors`, `output_processors` and `quant` n
 
 For more details, please refer to {ref}`Configuration File Detailed Description <config_details>`.
 
-(model-compile-m57)=
+(model_compile_m57)=
 
 ## Compile and execute
 
@@ -266,7 +266,7 @@ Tensor information
   Initializer "subgraph_npu_0_b1_neu": type UINT8, shape [122368],
 ```
 
-(model-simulator-m57)=
+(model_simulator_m57)=
 
 ## Simulation Run
 

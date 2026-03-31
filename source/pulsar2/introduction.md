@@ -26,7 +26,7 @@ The core function of the `Pulsar2` tool chain is to compile the `.onnx` model in
 :alt: pipeline
 :::
 
-(soc-introduction)=
+(soc_introduction)=
 
 ## Introduction to Virtual NPU
 

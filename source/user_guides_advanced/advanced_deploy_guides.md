@@ -1,4 +1,4 @@
-(model-deploy-advanced)=
+(model_deploy_advanced)=
 
 # Advanced Guide to Model Deployment
 
