@@ -9,7 +9,7 @@
 :caption: copyright
 :maxdepth: 1
 :name: Pulsar2 Copyright
-:numbered: true
+:numbered:
 
 doc_update_info/copy_right_en.md
 :::
@@ -18,7 +18,7 @@ doc_update_info/copy_right_en.md
 :caption: Pulsar2 Toolchain
 :maxdepth: 2
 :name: Pulsar2
-:numbered: true
+:numbered:
 
 doc_update_info/update_info.md
 pulsar2/introduction.md
@@ -40,7 +40,7 @@ tool_classification/functional_safety.md
 :caption: Other Tools
 :maxdepth: 2
 :name: Other Tools
-:numbered: true
+:numbered:
 
 other_tools/caffe_to_onnx.md
 other_tools/convert_to_4w4f.md
@@ -52,7 +52,7 @@ other_tools/profiling.md
 :caption: appendix
 :maxdepth: 1
 :name: appendix
-:numbered: true
+:numbered:
 
 appendix/op_support_list_ax650.md
 appendix/op_support_list_ax620e.md

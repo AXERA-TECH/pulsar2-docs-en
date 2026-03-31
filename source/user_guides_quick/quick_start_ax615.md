@@ -255,7 +255,7 @@ Tensor information:
   Initializer "npu_0_b1_data": type UINT8, shape [173256],
 ```
 
-(model_simulator_20e)=
+(model_simulator_615)=
 
 ## Simulation Run
 
@@ -325,7 +325,7 @@ root@xxx:/data/pulsar2-run-helper# python3 cli_classification.py --post_processi
 [I] 6.8679, 463
 ```
 
-(onboard_running_20e)=
+(onboard_running_615)=
 
 ## Development board running
 

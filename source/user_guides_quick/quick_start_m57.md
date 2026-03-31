@@ -294,7 +294,7 @@ drwxr-xr-x 2 root root 4.0K Dec  2 12:23 sim_outputs/
 
 ### Simulation run example `mobilenetv2`
 
-Copy the `compiled.axmodel` generated in the {ref}`《Compile and Execute》 <model_compile_M57> section to the ``pulsar2-run-helper/models`` path and rename it to `mobilenetv2.axmodel`
+Copy the `compiled.axmodel` generated in the {ref}`《Compile and Execute》 <model_compile_m57> section to the ``pulsar2-run-helper/models`` path and rename it to `mobilenetv2.axmodel`
 
 ```shell
 root@xxx:/data# cp output/compiled.axmodel pulsar2-run-helper/models/mobilenetv2.axmodel
