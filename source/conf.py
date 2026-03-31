@@ -14,18 +14,14 @@ import os
 import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
-import sphinx_rtd_theme
-from recommonmark.parser import CommonMarkParser
-from recommonmark.transform import AutoStructify
-import sphinxcontrib.mermaid
 # -- Project information -----------------------------------------------------
 
 project = 'Pulsar2'
-copyright = 'Copyright (c) 2019-2024 Axera Semiconductor Co., Ltd.'
+copyright = '2025, AXERA Semiconductor Co., Ltd. All rights reserved'
 author = 'AXera-Tech'
 
 # The full version, including alpha/beta/rc tags
-release = 'V3.2'
+release = 'V5.1'
 
 # -- General configuration ---------------------------------------------------
 
@@ -33,7 +29,7 @@ release = 'V3.2'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 # myst_parser is incompatible with recommonmark, myst_parser support mermaid.
-extensions = ['sphinxcontrib.mermaid', 'recommonmark', 'sphinx_markdown_tables', 'sphinx_copybutton']
+extensions = ['myst_parser', 'sphinx_copybutton', 'sphinxcontrib.mermaid']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -49,7 +45,7 @@ exclude_patterns = ["examples/*[!.zip]"]
 # a list of builtin themes.
 
 # html_theme = 'alabaster'
-html_theme = 'sphinx_rtd_theme'
+html_theme = 'sphinx_book_theme'
 
 # html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 # Add any paths that contain custom static files (such as style sheets) here,
@@ -63,8 +59,13 @@ html_static_path = ['_static']
 # source_parsers = {
 #   '.md': CommonMarkParser,
 # }
-source_suffix = ['.rst', '.md']
+source_suffix = ['.md']
 
 # mermaid
 mermaid_output_format = 'raw'
 mermaid_version = 'latest'
+
+# myst_parser
+myst_enable_extensions = ['deflist', 'colon_fence']
+
+smartquotes = False
