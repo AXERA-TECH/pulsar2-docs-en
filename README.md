@@ -1,6 +1,6 @@
 # Pulsar2 User Manual
 
-[Web Review](https://npu.pages-git-ext.axera-tech.com/pulsar2-docs/)
+[Web Review](https://pulsar2-docs.readthedocs.io/en/latest/)
 
 ## 1. Project Background
 
@@ -15,33 +15,32 @@ Next-generation AI toolchain *Pulsar2* User manual Public maintenance project
 ### 2.1 git clone
 
 ```bash
-# 待补充 git clone https://git-ext.axera-tech.com/npu/pulsar2-docs.git
+git clone https://github.com/AXERA-TECH/pulsar2-docs-en.git
 ```
 
 The directory tree is as follows:
 
 ```bash
 .
+├── build
+│   ├── doctrees
+│   └── html
 ├── LICENSE
 ├── Makefile
 ├── README.md
-├── build
-│   ├── doctrees
-│   └── html
 ├── requirements.txt
-└── source                      # Document Main
+└── source
     ├── appendix
     ├── conf.py
     ├── doc_update_info
-    ├── examples                # Some examples are saved in .zip format. Due to the limitation of git pages, the online documentation does not support click-to-download operation
-    ├── faq
     ├── index.rst
     ├── media
+    ├── other_tools
     ├── pulsar2
+    ├── tool_classification
     ├── user_guides_advanced
     ├── user_guides_config
-    ├── user_guides_quick
-    └── user_guides_runtime
+    └── user_guides_quick
 ```
 
 ### 2.2 Compile
@@ -67,7 +66,7 @@ First, you can use `python` to start an `http` service in the compiled `build/ht
 
 ```bash
 $ cd build/html/
-$ python -m http.server 8005      # 端口可以自定义
+$ python -m http.server 8005
 ```
 
 Then connect to the server via `ssh`,
