@@ -19,27 +19,27 @@ This section introduces the **NPU** supports for the ``ONNX`` operator in ``AX63
 +-----------------------+---------------------------------------------+
 | Add                   | Unlimited                                   |
 +-----------------------+---------------------------------------------+
-| ArgMax                | | axis: Unlimited                           |
-|                       | | keepdims: Unlimited                       |
-|                       | | select_last_index: Only supports          |
+| ArgMax                | - axis: Unlimited                           |
+|                       | - keepdims: Unlimited                       |
+|                       | - select_last_index: Only supports          |
 |                       |   setting to 0                              |
 +-----------------------+---------------------------------------------+
-| ArgMin                | | axis: Unlimited                           |
-|                       | | keepdims: Unlimited                       |
-|                       | | select_last_index: Only supports          |
+| ArgMin                | - axis: Unlimited                           |
+|                       | - keepdims: Unlimited                       |
+|                       | - select_last_index: Only supports          |
 |                       |   setting to 0                              |
 +-----------------------+---------------------------------------------+
-| AveragePool           | | auto_pad: Only supports NOTSET            |
-|                       | | ceil_mode: Unlimited                      |
-|                       | | count_include_pad: Only supports          |
+| AveragePool           | - auto_pad: Only supports NOTSET            |
+|                       | - ceil_mode: Unlimited                      |
+|                       | - count_include_pad: Only supports          |
 |                       |   setting to 1                              |
-|                       | | kernel_shape: Unlimited                   |
-|                       | | pads: Unlimited                           |
-|                       | | strides: Unlimited                        |
+|                       | - kernel_shape: Unlimited                   |
+|                       | - pads: Unlimited                           |
+|                       | - strides: Unlimited                        |
 +-----------------------+---------------------------------------------+
-| BatchNormalization    | | epsilon: Unlimited                        |
-|                       | | momentum: Not supported                   |
-|                       | | training_mode: Not supported              |
+| BatchNormalization    | - epsilon: Unlimited                        |
+|                       | - momentum: Not supported                   |
+|                       | - training_mode: Not supported              |
 +-----------------------+---------------------------------------------+
 | Cast                  | to:                                         |
 |                       |                                             |
@@ -47,8 +47,8 @@ This section introduces the **NPU** supports for the ``ONNX`` operator in ``AX63
 +-----------------------+---------------------------------------------+
 | Ceil                  | Unlimited                                   |
 +-----------------------+---------------------------------------------+
-| Clip                  | | min: Unlimited                            |
-|                       | | max: Unlimited                            |
+| Clip                  | - min: Unlimited                            |
+|                       | - max: Unlimited                            |
 +-----------------------+---------------------------------------------+
 | Concat                | axis: Unlimited                             |
 +-----------------------+---------------------------------------------+
@@ -56,31 +56,31 @@ This section introduces the **NPU** supports for the ``ONNX`` operator in ``AX63
 +-----------------------+---------------------------------------------+
 | ConstantOfShape       | Unlimited                                   |
 +-----------------------+---------------------------------------------+
-| Conv                  | | auto_pad: Only supports NOTSET            |
-|                       | | dilations: Unlimited                      |
-|                       | | group: Unlimited                          |
-|                       | | kernel_shape: Unlimited                   |
-|                       | | pads: Unlimited                           |
-|                       | | strides: Unlimited                        |
-|                       | | note: The efficiency would be lower when  |
+| Conv                  | - auto_pad: Only supports NOTSET            |
+|                       | - dilations: Unlimited                      |
+|                       | - group: Unlimited                          |
+|                       | - kernel_shape: Unlimited                   |
+|                       | - pads: Unlimited                           |
+|                       | - strides: Unlimited                        |
+|                       | - note: The efficiency would be lower when  |
 |                       |   using DepthWise/Group Conv and dilation   |
 |                       |   not equals to 1                           |
 +-----------------------+---------------------------------------------+
-| ConvTranspose         | | auto_pad: Only supports NOTSET            |
-|                       | | dilations:  currently only setting to 1   |
-|                       | | group: Unlimited                          |
-|                       | | kernel_shape: Unlimited                   |
-|                       | | output_shape: Not supported yet           |
-|                       | | pads: Unlimited                           |
-|                       | | strides: Unlimited                        |
-|                       | | note: The efficiency would be lower in    |
+| ConvTranspose         | - auto_pad: Only supports NOTSET            |
+|                       | - dilations:  currently only setting to 1   |
+|                       | - group: Unlimited                          |
+|                       | - kernel_shape: Unlimited                   |
+|                       | - output_shape: Not supported yet           |
+|                       | - pads: Unlimited                           |
+|                       | - strides: Unlimited                        |
+|                       | - note: The efficiency would be lower in    |
 |                       |   DepthWise ConvTranspose.                  |
-|                       | | output_padding: output_padding_h <=       |
+|                       | - output_padding: output_padding_h <=       |
 |                       |   pads_bottom, output_padding_w <=          |
 |                       |   pads_right                                |
 +-----------------------+---------------------------------------------+
-| DepthToSpace          | | blocksize: Unlimited                      |
-|                       | | mode: currently Only supports DCR         |
+| DepthToSpace          | - blocksize: Unlimited                      |
+|                       | - mode: currently Only supports DCR         |
 +-----------------------+---------------------------------------------+
 | Div                   | Unlimited                                   |
 +-----------------------+---------------------------------------------+
@@ -96,16 +96,16 @@ This section introduces the **NPU** supports for the ``ONNX`` operator in ``AX63
 +-----------------------+---------------------------------------------+
 | Flatten               | Unlimited                                   |
 +-----------------------+---------------------------------------------+
-| Gather                | | axis: Unlimited                           |
-|                       | | indices:  currently Only supports 1       |
+| Gather                | - axis: Unlimited                           |
+|                       | - indices:  currently Only supports 1       |
 |                       |   dimension                                 |
 +-----------------------+---------------------------------------------+
 | Gelu                  | Unlimited                                   |
 +-----------------------+---------------------------------------------+
-| Gemm                  | | alpha: Not supported yet                  |
-|                       | | beta: Not supported yet                   |
-|                       | | transA: Unlimited                         |
-|                       | | transB: Unlimited                         |
+| Gemm                  | - alpha: Not supported yet                  |
+|                       | - beta: Not supported yet                   |
+|                       | - transA: Unlimited                         |
+|                       | - transB: Unlimited                         |
 +-----------------------+---------------------------------------------+
 | GlobalAveragePool     | Unlimited                                   |
 +-----------------------+---------------------------------------------+
@@ -132,23 +132,23 @@ This section introduces the **NPU** supports for the ``ONNX`` operator in ``AX63
 +-----------------------+---------------------------------------------+
 | LessOrEqual           | Unlimited                                   |
 +-----------------------+---------------------------------------------+
-| LpNormalization       | | axis currently Only supports -1           |
-|                       | | (i.e. the last dimension)                 |
-|                       | | p only supports 1 or 2                    |
+| LpNormalization       | - axis currently Only supports -1           |
+|                       | - (i.e. the last dimension)                 |
+|                       | - p only supports 1 or 2                    |
 +-----------------------+---------------------------------------------+
-| LSTM                  | | activation_alpha: Not supported yet       |
-|                       | | activation_beta: Not supported yet        |
-|                       | | activations: Not supported yet            |
-|                       | | clip: Not supported yet                   |
-|                       | | hidden_size: Unlimited                    |
-|                       | | input_forget: Not supported yet           |
-|                       | | layout: Only supports setting to 0        |
-|                       | | B: Unlimited                              |
-|                       | | sequence_lens: Not supported              |
-|                       | | initial_h: Unlimited                      |
-|                       | | initial_c: Unlimited                      |
-|                       | | P: Not supported yet                      |
-|                       | | direction: Supports "bidirectional",      |
+| LSTM                  | - activation_alpha: Not supported yet       |
+|                       | - activation_beta: Not supported yet        |
+|                       | - activations: Not supported yet            |
+|                       | - clip: Not supported yet                   |
+|                       | - hidden_size: Unlimited                    |
+|                       | - input_forget: Not supported yet           |
+|                       | - layout: Only supports setting to 0        |
+|                       | - B: Unlimited                              |
+|                       | - sequence_lens: Not supported              |
+|                       | - initial_h: Unlimited                      |
+|                       | - initial_c: Unlimited                      |
+|                       | - P: Not supported yet                      |
+|                       | - direction: Supports "bidirectional",      |
 |                       |   "reverse", "forward"                      |
 +-----------------------+---------------------------------------------+
 | LeakyRelu             | Unlimited                                   |
@@ -161,13 +161,13 @@ This section introduces the **NPU** supports for the ``ONNX`` operator in ``AX63
 +-----------------------+---------------------------------------------+
 | Mish                  | Unlimited                                   |
 +-----------------------+---------------------------------------------+
-| MaxPool               | | auto_pad: Only supports setting to NOTSET |
-|                       | | ceil_mode: Unlimited                      |
-|                       | | dilations: Only supports 为1              |
-|                       | | kernel_shape: Unlimited                   |
-|                       | | pads: Unlimited                           |
-|                       | | storage_order: Only supports setting to 0 |
-|                       | | strides: Unlimited                        |
+| MaxPool               | - auto_pad: Only supports setting to NOTSET |
+|                       | - ceil_mode: Unlimited                      |
+|                       | - dilations: Only supports 为1              |
+|                       | - kernel_shape: Unlimited                   |
+|                       | - pads: Unlimited                           |
+|                       | - storage_order: Only supports setting to 0 |
+|                       | - strides: Unlimited                        |
 +-----------------------+---------------------------------------------+
 | Mul                   | Unlimited                                   |
 +-----------------------+---------------------------------------------+
@@ -176,57 +176,57 @@ This section introduces the **NPU** supports for the ``ONNX`` operator in ``AX63
 |                       | slope shape currently Only supports         |
 |                       | (channel,) or (1, channel, 1, 1)            |
 +-----------------------+---------------------------------------------+
-| Pad                   | | pads: Unlimited                           |
-|                       | | constant_value: Unlimited                 |
-|                       | | mode: Only supports constant              |
-|                       | | axes: Not supported yet                   |
+| Pad                   | - pads: Unlimited                           |
+|                       | - constant_value: Unlimited                 |
+|                       | - mode: Only supports constant              |
+|                       | - axes: Not supported yet                   |
 +-----------------------+---------------------------------------------+
 | Pow                   | not suppors elemwise's calculation,         |
 |                       | exponent only supports initializer          |
 |                       | form and is a scalar。                      |
 +-----------------------+---------------------------------------------+
-| ReduceL2              | | axes: Unlimited                           |
-|                       | | keepdims: Unlimited                       |
-|                       | | noop_with_empty_axes: This parameter      |
+| ReduceL2              | - axes: Unlimited                           |
+|                       | - keepdims: Unlimited                       |
+|                       | - noop_with_empty_axes: This parameter      |
 |                       |   is not supported yet                      |
 +-----------------------+---------------------------------------------+
-| ReduceMax             | | axes: Unlimited                           |
-|                       | | keepdims: Unlimited                       |
-|                       | | noop_with_empty_axes: This parameter      |
+| ReduceMax             | - axes: Unlimited                           |
+|                       | - keepdims: Unlimited                       |
+|                       | - noop_with_empty_axes: This parameter      |
 |                       |   is not supported yet                      |
 +-----------------------+---------------------------------------------+
-| ReduceMean            | | axes: Unlimited                           |
-|                       | | keepdims: Unlimited                       |
-|                       | | noop_with_empty_axes: This parameter      |
+| ReduceMean            | - axes: Unlimited                           |
+|                       | - keepdims: Unlimited                       |
+|                       | - noop_with_empty_axes: This parameter      |
 |                       |   is not supported yet                      |
 +-----------------------+---------------------------------------------+
-| ReduceSum             | | axes: Unlimited                           |
-|                       | | keepdims: Unlimited                       |
-|                       | | noop_with_empty_axes: This parameter      |
+| ReduceSum             | - axes: Unlimited                           |
+|                       | - keepdims: Unlimited                       |
+|                       | - noop_with_empty_axes: This parameter      |
 |                       |   is not supported yet                      |
 +-----------------------+---------------------------------------------+
 | Relu                  | Unlimited                                   |
 +-----------------------+---------------------------------------------+
 | Reshape               | shape: Unlimited                            |
 +-----------------------+---------------------------------------------+
-| Resize                | | mode: supports "nearest"、"linear"        |
-|                       | | scales: Unlimited                         |
-|                       | | nearest_mode:                             |
+| Resize                | - mode: supports "nearest"、"linear"        |
+|                       | - scales: Unlimited                         |
+|                       | - nearest_mode:                             |
 |                       |   Only supports setting to round_prefer_ceil|
 +-----------------------+---------------------------------------------+
 | Sigmoid               | Unlimited                                   |
 +-----------------------+---------------------------------------------+
-| Slice                 | | starts: Unlimited                         |
-|                       | | ends: Unlimited                           |
-|                       | | axes: Unlimited                           |
-|                       | | steps: Unlimited                          |
+| Slice                 | - starts: Unlimited                         |
+|                       | - ends: Unlimited                           |
+|                       | - axes: Unlimited                           |
+|                       | - steps: Unlimited                          |
 +-----------------------+---------------------------------------------+
 | SpatialTransformer    | The interpolation method is "bilinear",     |
 |                       | The boundary processing method              |
 |                       | is "constant" (value = 0)                   |
 +-----------------------+---------------------------------------------+
-| Split                 | | axis: Unlimited                           |
-|                       | | num_outputs: Unlimited                    |
+| Split                 | - axis: Unlimited                           |
+|                       | - num_outputs: Unlimited                    |
 +-----------------------+---------------------------------------------+
 | Sqrt                  | Unlimited                                   |
 +-----------------------+---------------------------------------------+
@@ -236,9 +236,9 @@ This section introduces the **NPU** supports for the ``ONNX`` operator in ``AX63
 +-----------------------+---------------------------------------------+
 | Swish                 | Unlimited                                   |
 +-----------------------+---------------------------------------------+
-| Squeeze               | | axes: Unlimited                           |
+| Squeeze               | - axes: Unlimited                           |
 +-----------------------+---------------------------------------------+
-| Softmax               | | axis: Unlimited                           |
+| Softmax               | - axis: Unlimited                           |
 +-----------------------+---------------------------------------------+
 | Softplus              | Unlimited                                   |
 +-----------------------+---------------------------------------------+
@@ -250,9 +250,9 @@ This section introduces the **NPU** supports for the ``ONNX`` operator in ``AX63
 +-----------------------+---------------------------------------------+
 | Topk                  | Unlimited                                   |
 +-----------------------+---------------------------------------------+
-| Transpose             | | perm: Unlimited                           |
+| Transpose             | - perm: Unlimited                           |
 +-----------------------+---------------------------------------------+
-| Unsqueeze             | | axes: Unlimited                           |
+| Unsqueeze             | - axes: Unlimited                           |
 +-----------------------+---------------------------------------------+
 | Where                 | Unlimited                                   |
 +-----------------------+---------------------------------------------+
