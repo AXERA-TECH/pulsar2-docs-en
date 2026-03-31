@@ -22,17 +22,17 @@ This section introduces the **NPU** supports for the ``ONNX`` operator in ``AX61
 | ArgMax                | | axis: Unlimited                           |
 |                       | | keepdims: Unlimited                       |
 |                       | | select_last_index: Only supports setting  |
-|                       |                      to 0                   |
+|                       |   to 0                                      |
 +-----------------------+---------------------------------------------+
 | ArgMin                | | axis: Unlimited                           |
 |                       | | keepdims: Unlimited                       |
 |                       | | select_last_index: Only supports setting  |
-|                       |                      to 0                   |
+|                       |   to 0                                      |
 +-----------------------+---------------------------------------------+
 | AveragePool           | | auto_pad: Only supports NOTSET            |
 |                       | | ceil_mode: Unlimited                      |
 |                       | | count_include_pad: Only supports setting  |
-|                       |                      to 1                   |
+|                       |   to 1                                      |
 |                       | | kernel_shape: Unlimited                   |
 |                       | | pads: Unlimited                           |
 |                       | | strides: Unlimited                        |
@@ -72,10 +72,10 @@ This section introduces the **NPU** supports for the ``ONNX`` operator in ``AX61
 |                       | | pads: Unlimited                           |
 |                       | | strides: Unlimited                        |
 |                       | | note: The efficiency would be lower in    |
-|                       |     DepthWise ConvTranspose.                |
+|                       |   DepthWise ConvTranspose.                  |
 |                       | | output_padding: output_padding_h <=       |
-|                       |     pads_bottom, output_padding_w <=        |
-|                       |     pads_right                              |
+|                       |   pads_bottom, output_padding_w <=          |
+|                       |   pads_right                                |
 +-----------------------+---------------------------------------------+
 | DepthToSpace          | | blocksize: Unlimited                      |
 |                       | | mode: Currently only supports DCR         |
@@ -130,9 +130,9 @@ This section introduces the **NPU** supports for the ``ONNX`` operator in ``AX61
 | LessOrEqual           | Unlimited                                   |
 +-----------------------+---------------------------------------------+
 | LpNormalization       | | axis: Currently only supports -1 (i.e.,   |
-|                       |         the last dimension)                 |
+|                       |   the last dimension)                       |
 |                       | | p: Only supports 1 or 2                   |
-|                       |      Only for small sizes                   |
+|                       |   Only for small sizes                      |
 +-----------------------+---------------------------------------------+
 | LSTM                  | | activation_alpha: Not supported yet       |
 |                       | | activation_beta: Not supported yet        |
@@ -147,7 +147,7 @@ This section introduces the **NPU** supports for the ``ONNX`` operator in ``AX61
 |                       | | initial_c: Unlimited                      |
 |                       | | P: Not supported yet                      |
 |                       | | direction: Supports "bidirectional",      |
-|                       |       "reverse", "forward"                  |
+|                       |   "reverse", "forward"                      |
 +-----------------------+---------------------------------------------+
 | LeakyRelu             | Unlimited                                   |
 +-----------------------+---------------------------------------------+
@@ -189,29 +189,29 @@ This section introduces the **NPU** supports for the ``ONNX`` operator in ``AX61
 | ReduceL2              | | axes: Unlimited                           |
 |                       | | keepdims: Unlimited                       |
 |                       | | noop_with_empty_axes: This parameter is   |
-|                       |                         not supported yet   |
+|                       |   not supported yet                         |
 +-----------------------+---------------------------------------------+
 | ReduceMax             | | axes: Unlimited                           |
 |                       | | keepdims: Unlimited                       |
 |                       | | noop_with_empty_axes: This parameter is   |
-|                       |                         not supported yet   |
+|                       |   not supported yet                         |
 +-----------------------+---------------------------------------------+
 | ReduceMax             | | axes: Unlimited                           |
 |                       | | keepdims: Unlimited                       |
 |                       | | noop_with_empty_axes: This parameter is   |
-|                       |                         not supported yet   |
+|                       |   not supported yet                         |
 +-----------------------+---------------------------------------------+
 | ReduceMean            | | axes: Unlimited                           |
 |                       | | keepdims: Unlimited                       |
 |                       | | noop_with_empty_axes: This parameter is   |
-|                       |                         not supported yet   |
+|                       |   not supported yet                         |
 +-----------------------+---------------------------------------------+
 | Relu                  | Unlimited                                   |
 +-----------------------+---------------------------------------------+
 | Reshape               | shape: Unlimited                            |
 +-----------------------+---------------------------------------------+
 | Resize                | | mode: Supported options: "nearest" and    |
-|                       |         "linear"                            |
+|                       |   "linear"                                  |
 |                       | | scales: Unlimited                         |
 |                       |                                             |
 |                       | nearest_mode:                               |

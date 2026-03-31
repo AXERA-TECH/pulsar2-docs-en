@@ -24,16 +24,16 @@ This section introduces the **NPU** supports for the ``ONNX`` operator in ``M57`
 | ArgMax                | | axis: Unlimited                           |
 |                       | | keepdims: Unlimited                       |
 |                       | | select_last_index: Only supports          |
-|                       |                      setting to 0           |
+|                       |   setting to 0                              |
 +-----------------------+---------------------------------------------+
 | ArgMin                | | axis: Unlimited                           |
 |                       | | keepdims: Unlimited                       |
 |                       | | select_last_index: Only supports          |
-|                       |                      setting to 0           |
+|                       |   setting to 0                              |
 +-----------------------+---------------------------------------------+
 | AveragePool           | | auto_pad: Only supports NOTSET            |
 |                       | | count_include_pad: Only supports          |
-|                       |                      setting to 1           |
+|                       |   setting to 1                              |
 |                       | | kernel_shape: Unlimited                   |
 |                       | | pads: Unlimited                           |
 |                       | | strides: Unlimited                        |
@@ -66,8 +66,8 @@ This section introduces the **NPU** supports for the ``ONNX`` operator in ``M57`
 |                       | | pads: Unlimited                           |
 |                       | | strides: Unlimited                        |
 |                       | | note: The efficiency would be lower when  |
-|                       |      using DepthWise/Group Conv and dilation|
-|                       |      not equals to 1                        |
+|                       |   using DepthWise/Group Conv and dilation   |
+|                       |   not equals to 1                           |
 +-----------------------+---------------------------------------------+
 | ConvTranspose         | | auto_pad: Only supports NOTSET            |
 |                       | | dilations:  currently only setting to 1   |
@@ -77,10 +77,10 @@ This section introduces the **NPU** supports for the ``ONNX`` operator in ``M57`
 |                       | | pads: Unlimited                           |
 |                       | | strides: Unlimited                        |
 |                       | | note: The efficiency would be lower in    |
-|                       |            DepthWise ConvTranspose.         |
+|                       |   DepthWise ConvTranspose.                  |
 |                       | | output_padding: output_padding_h <=       |
-|                       |     pads_bottom, output_padding_w <=        |
-|                       |     pads_right                              |
+|                       |   pads_bottom, output_padding_w <=          |
+|                       |   pads_right                                |
 +-----------------------+---------------------------------------------+
 | Cos                   | Unlimited                                   |
 +-----------------------+---------------------------------------------+
@@ -108,11 +108,11 @@ This section introduces the **NPU** supports for the ``ONNX`` operator in ``M57`
 +-----------------------+---------------------------------------------+
 | Gather                | | axis: Unlimited                           |
 |                       | | indices:  currently Only supports 1       |
-|                       |             dimension                       |
+|                       |   dimension                                 |
 +-----------------------+---------------------------------------------+
 | GatherElements        | | axis: Unlimited                           |
 +-----------------------+---------------------------------------------+
-| GatherND              |   Unlimited                                 |
+| GatherND              | Unlimited                                   |
 +-----------------------+---------------------------------------------+
 | Gelu                  | Unlimited                                   |
 +-----------------------+---------------------------------------------+
@@ -169,7 +169,7 @@ This section introduces the **NPU** supports for the ``ONNX`` operator in ``M57`
 |                       | | initial_c: Unlimited                      |
 |                       | | P: Not supported yet                      |
 |                       | | direction: Supports "bidirectional",      |
-|                       |              "reverse","forward"            |
+|                       |   "reverse","forward"                       |
 +-----------------------+---------------------------------------------+
 | LogSoftmax            | Unlimited                                   |
 +-----------------------+---------------------------------------------+
@@ -205,9 +205,9 @@ This section introduces the **NPU** supports for the ``ONNX`` operator in ``M57`
 |                       | form and is a scalar。                      |
 +-----------------------+---------------------------------------------+
 | PRelu                 | When 4D tensor is input, the channel        |
-|                       |  dimension is in the second dimension, and  |
-|                       |  slope shape currently Only supports        |
-|                       |  (channel,) or (1, channel, 1, 1)           |
+|                       | dimension is in the second dimension, and   |
+|                       | slope shape currently Only supports         |
+|                       | (channel,) or (1, channel, 1, 1)            |
 +-----------------------+---------------------------------------------+
 | ReduceL2              | | axes: Unlimited                           |
 |                       | | keepdims: Unlimited                       |
@@ -238,10 +238,10 @@ This section introduces the **NPU** supports for the ``ONNX`` operator in ``M57`
 +-----------------------+---------------------------------------------+
 | Reshape               | shape: Unlimited                            |
 +-----------------------+---------------------------------------------+
-| Resize                | mode: supports "nearest"、"linear"          |
-|                       | scales: Unlimited                           |
-|                       | nearest_mode:                               |
-|                       | Only supports setting to round_prefer_ceil  |
+| Resize                | | mode: supports "nearest"、"linear"        |
+|                       | | scales: Unlimited                         |
+|                       | | nearest_mode:                             |
+|                       |   Only supports setting to round_prefer_ceil|
 +-----------------------+---------------------------------------------+
 | RMSNormalization      | Unlimited                                   |
 +-----------------------+---------------------------------------------+
