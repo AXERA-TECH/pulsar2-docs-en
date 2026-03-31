@@ -72,11 +72,10 @@ This section introduces the **NPU** supports for the ``ONNX`` operator in ``AX61
 |                       | | pads: Unlimited                           |
 |                       | | strides: Unlimited                        |
 |                       | | note: The efficiency would be lower in    |
-|                       | | DepthWise ConvTranspose.                  |
-|                       |                                             |
-|                       | output_padding: output_padding_h <=         |
-|                       | pads_bottom, output_padding_w <=            |
-|                       | pads_right                                  |
+|                       |     DepthWise ConvTranspose.                |
+|                       | | output_padding: output_padding_h <=       |
+|                       |     pads_bottom, output_padding_w <=        |
+|                       |     pads_right                              |
 +-----------------------+---------------------------------------------+
 | DepthToSpace          | | blocksize: Unlimited                      |
 |                       | | mode: Currently only supports DCR         |
@@ -147,10 +146,8 @@ This section introduces the **NPU** supports for the ``ONNX`` operator in ``AX61
 |                       | | initial_h: Unlimited                      |
 |                       | | initial_c: Unlimited                      |
 |                       | | P: Not supported yet                      |
-|                       |                                             |
-|                       | direction:                                  |
-|                       | Supports "bidirectional", "reverse",        |
-|                       | "forward"                                   |
+|                       | | direction: Supports "bidirectional",      |
+|                       |       "reverse", "forward"                  |
 +-----------------------+---------------------------------------------+
 | LeakyRelu             | Unlimited                                   |
 +-----------------------+---------------------------------------------+

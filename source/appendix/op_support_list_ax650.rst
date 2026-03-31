@@ -77,10 +77,9 @@ This section introduces the **NPU** supports for the ``ONNX`` operator in ``AX65
 |                       | | strides: Unlimited                        |
 |                       | | note: The efficiency would be lower in    |
 |                       |            DepthWise ConvTranspose.         |
-|                       |                                             |
-|                       | output_padding: output_padding_h <=         |
-|                       | pads_bottom, output_padding_w <=            |
-|                       | pads_right                                  |
+|                       | | output_padding: output_padding_h <=       |
+|                       |     pads_bottom, output_padding_w <=        |
+|                       |     pads_right                              |
 +-----------------------+---------------------------------------------+
 | Cos                   | Unlimited                                   |
 +-----------------------+---------------------------------------------+

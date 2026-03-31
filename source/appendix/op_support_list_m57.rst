@@ -13,7 +13,7 @@ This section introduces the **NPU** supports for the ``ONNX`` operator in ``M57`
     | "Not supported": Indicates that the implementation of this attribute cannot be supported.
 
 +-----------------------+---------------------------------------------+
-| Operators              | Attrs limitation                           |
+| Operators             | Attrs limitation                            |
 +=======================+=============================================+
 | Abs                   | Unlimited                                   |
 +-----------------------+---------------------------------------------+
@@ -67,7 +67,7 @@ This section introduces the **NPU** supports for the ``ONNX`` operator in ``M57`
 |                       | | strides: Unlimited                        |
 |                       | | note: The efficiency would be lower when  |
 |                       |      using DepthWise/Group Conv and dilation|
-|                       |    not equals to 1                          |
+|                       |      not equals to 1                        |
 +-----------------------+---------------------------------------------+
 | ConvTranspose         | | auto_pad: Only supports NOTSET            |
 |                       | | dilations:  currently only setting to 1   |
@@ -78,10 +78,9 @@ This section introduces the **NPU** supports for the ``ONNX`` operator in ``M57`
 |                       | | strides: Unlimited                        |
 |                       | | note: The efficiency would be lower in    |
 |                       |            DepthWise ConvTranspose.         |
-|                       |                                             |
-|                       | output_padding: output_padding_h <=         |
-|                       | pads_bottom, output_padding_w <=            |
-|                       | pads_right                                  |
+|                       | | output_padding: output_padding_h <=       |
+|                       |     pads_bottom, output_padding_w <=        |
+|                       |     pads_right                              |
 +-----------------------+---------------------------------------------+
 | Cos                   | Unlimited                                   |
 +-----------------------+---------------------------------------------+
