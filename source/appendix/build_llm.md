@@ -9,7 +9,7 @@
 
 **Verified models**
 
-- Qwen3, Qwen2.5
+- Qwen3.5, Qwen3, Qwen2.5
 - DeepSeek-R1-Distill
 - MiniCPM4
 - InternVL2_5, InternVL3
@@ -27,7 +27,7 @@ The example model in this chapter is `Qwen3-0.6B`.
 
 **Version constraint**
 
-This document is written based on Pulsar2 version 5.2.
+This document is written based on Pulsar2 version 6.0.
 
 **LLM ModelZoo**
 
@@ -43,15 +43,15 @@ This project explores what common LLMs (Large Language Models) can do on existin
 
 ## Command reference
 
-In the `Pulsar2` toolchain, use `pulsar2 llm_build` to convert an LLM model.
+In the `Pulsar2` toolchain, use `pulsar2 llm_build2` to convert an LLM model.
 
 ```shell
-root@xxx:/data# pulsar2 llm_build --help
-usage: pulsar2 llm_build [-h] [--input_path INPUT_PATH] [--output_path OUTPUT_PATH] [--prefill_len PREFILL_LEN] [--parallel PARALLEL]
-                         [--model_config MODEL_CONFIG] [--model_type MODEL_TYPE] [--kv_cache_len KV_CACHE_LEN] [--post_topk POST_TOPK]
-                         [--post_weight_type {bf16,s8,fp8_e5m2,fp8_e4m3}] [-t {fp16,bf16,fp32}] [-w {fp16,bf16,fp32,s8,s4,fp8_e5m2,fp8_e4m3}] [-c CHECK_LEVEL]
-                         [--chip {AX620E,AX650,LAMBERT}] [--prompt PROMPT] [--image_size IMAGE_SIZE] [--last_kv_cache_len LAST_KV_CACHE_LEN]
-                         [--tensor_parallel_size TENSOR_PARALLEL_SIZE] [--ret_postnorm] [--ld_param_opt] [--npu_mode {NPU1,NPU2,NPU3}]
+root@xxx:/data# pulsar2 llm_build2 -h
+usage: pulsar2 llm_build2 [-h] [--input_path INPUT_PATH] [--output_path OUTPUT_PATH] [--prefill_len PREFILL_LEN] [--prefill_step_size PREFILL_STEP_SIZE] [--max_context MAX_CONTEXT]
+                          [--decode_step_size DECODE_STEP_SIZE] [--parallel PARALLEL] [--model_config MODEL_CONFIG] [--model_type MODEL_TYPE] [--post_topk POST_TOPK]
+                          [--post_weight_type {bf16,s8,fp8_e5m2,fp8_e4m3}] [-t {fp16,bf16,fp32}] [-w {fp16,bf16,fp32,s8,s4,fp8_e5m2,fp8_e4m3}] [-c CHECK_LEVEL]
+                          [--chip {AX620E,AX650,LAMBERT}] [--prompt PROMPT] [--image_size IMAGE_SIZE] [--tensor_parallel_size TENSOR_PARALLEL_SIZE] [--ret_postnorm] [--ld_param_opt]
+                          [--npu_mode {NPU1,NPU2,NPU3}]
 
 options:
   -h, --help            show this help message and exit
@@ -60,14 +60,18 @@ options:
   --output_path OUTPUT_PATH
                         path of dumpped ax_model (default: .)
   --prefill_len PREFILL_LEN
-                        token length of prefill (default: 0)
+                        total token length of prefill (default: 0)
+  --prefill_step_size PREFILL_STEP_SIZE
+                        token length of each prefill subgraph; default is derived from prefill_len (default: None)
+  --max_context MAX_CONTEXT
+                        maximum decode attention length (default: 128)
+  --decode_step_size DECODE_STEP_SIZE
+                        decode context step size; default is derived from max_context, <=0 means one decode subgraph (default: None)
   --parallel PARALLEL   build parallel (default: 1)
   --model_config MODEL_CONFIG
                         config file (default: )
   --model_type MODEL_TYPE
                         config file (default: )
-  --kv_cache_len KV_CACHE_LEN
-                        length of kv_cache (default: 127)
   --post_topk POST_TOPK
                         post model output indices and prob (default: 0)
   --post_weight_type {bf16,s8,fp8_e5m2,fp8_e4m3}
@@ -83,8 +87,6 @@ options:
   --prompt PROMPT       prompt for check_level==2 (default: 1+1=)
   --image_size IMAGE_SIZE
                         vlm vision_part input_size (default: 224)
-  --last_kv_cache_len LAST_KV_CACHE_LEN
-                        last kv cache len (default: None)
   --tensor_parallel_size TENSOR_PARALLEL_SIZE
                         tensor parallel size (default: 0)
   --ret_postnorm        weather to return post_norm value in post layer (default: False)
@@ -112,13 +114,14 @@ hf download Qwen/Qwen3-0.6B --local-dir Qwen/Qwen3-0.6B
 ## Build (compile)
 
 ```shell
-pulsar2 llm_build --input_path Qwen/Qwen3-0.6B/  --output_path Qwen/Qwen3-0.6B-ax650 --hidden_state_type bf16 --kv_cache_len 1023 --prefill_len 128 --last_kv_cache_len 128 --last_kv_cache_len 256 --last_kv_cache_len 384 --last_kv_cache_len 512  --chip AX650 -c 1 --parallel 8
+export FLOAT_MATMUL_USE_CONV_EU=1
+pulsar2 llm_build2 --input_path Qwen/Qwen3-0.6B/  --output_path Qwen/Qwen3-0.6B-ax650 --hidden_state_type bf16 --max_context 1024 --prefill_len 512 --prefill_step_size 128 --chip AX650 --parallel 8
 ```
 
 ### Log example
 
 ```
-pulsar2 llm_build --input_path Qwen/Qwen3-0.6B/  --output_path Qwen/Qwen3-0.6B-ax650 --hidden_state_type bf16 --kv_cache_len 1023 --prefill_len 128 --last_kv_cache_len 128 --last_kv_cache_len 256 --last_kv_cache_len 384 --last_kv_cache_len 512  --chip AX650 -c 1 --parallel 8
+pulsar2 llm_build2 --input_path Qwen/Qwen3-0.6B/  --output_path Qwen/Qwen3-0.6B-ax650 --hidden_state_type bf16 --max_context 1024 --prefill_len 512 --prefill_step_size 128 --chip AX650 --parallel 8
 Config(
     model_name='Qwen3-0.6B',
     model_type='qwen3',
@@ -284,7 +287,7 @@ hf download AXERA-TECH/Qwen3-0.6B --local-dir Qwen3-0.6B
 
 ### Run in CLI
 
-```shell
+```text
 root@ax650:~/llm-test# axllm run Qwen3-0.6B/
 [I][                            Init][ 138]: LLM init start
 tokenizer_type = 1
@@ -394,7 +397,7 @@ curl http://127.0.0.1:8000/v1/chat/completions \
 
 If you want to test with the example script in the `ax-llm` project, you can do the following:
 
-```shell
+```text
 root@ax650:~/llm-test# curl -sOL https://raw.githubusercontent.com/AXERA-TECH/ax-llm/refs/heads/axllm/scripts/openai_demo.py
 
 root@ax650:~/llm-test# python openai_demo.py --model AXERA-TECH/Qwen3-0.6B --api_url http://127.0.0.1:8000/v1

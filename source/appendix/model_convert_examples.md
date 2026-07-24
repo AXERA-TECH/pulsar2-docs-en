@@ -4,7 +4,7 @@ This section provides `pulsar2 build` conversion examples for typical models, in
 
 :::{note}
 - The models and configuration files in this section are from [AXERA-TECH HuggingFace](https://huggingface.co/AXERA-TECH)
-- Before conversion, make sure the original model has been optimized using `onnxsim`
+- Before conversion, make sure the original model has been optimized using `onnxslim`
 - The input/output tensor names must match the actual ONNX definitions. You can check them via `onnx inspect --io model.onnx`
 :::
 
@@ -504,7 +504,7 @@ On-board inference latency is about `33 ms` (AX650, NPU3 3-core mode). For a Pyt
 
 - **HuggingFace**: [AXERA-TECH/cnclip](https://huggingface.co/AXERA-TECH/cnclip)
 - **Model source**: [OFA-Sys/Chinese-CLIP](https://github.com/OFA-Sys/Chinese-CLIP)
-- **ONNX export reference**: [cnclip.axera](https://github.com/AXERA-TECH/cnclip.axera?tab=readme-ov-file#%E5%AF%BC%E5%87%BA%E6%A8%A1%E5%9E%8Bpytorch---onnx)
+- **ONNX export reference**: [cnclip.axera](https://github.com/AXERA-TECH/cnclip.axera)
 - **AxSamples**: [CLIP-ONNX-AX650-CPP](https://github.com/AXERA-TECH/CLIP-ONNX-AX650-CPP)
 
 ### Configuration file

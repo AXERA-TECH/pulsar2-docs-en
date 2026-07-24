@@ -497,7 +497,7 @@ When an ONNX model has multiple inputs (such as stereo vision, image + mask, mul
 
 (skip_onnxsim_config)=
 
-## Skip onnxslim (onnxsim)
+## Skip onnxslim
 
 By default, `pulsar2 build` runs internal graph optimization on the ONNX model using the open source `onnxslim` tool. In some scenarios (for example, the model has already been manually optimized, it contains custom operators, or the optimization causes compilation failure), you may need to skip these optimization steps.
 
