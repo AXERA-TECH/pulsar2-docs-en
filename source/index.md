@@ -21,13 +21,9 @@ doc_update_info/copy_right_en.md
 :numbered:
 
 doc_update_info/update_info.md
+neutron/introduction.md
 pulsar2/introduction.md
-user_guides_quick/quick_start_prepare.md
-user_guides_quick/quick_start_ax650.md
-user_guides_quick/quick_start_ax620e.md
-user_guides_quick/quick_start_ax615.md
-user_guides_quick/quick_start_m57.md
-user_guides_quick/quick_start_ax637.md
+user_guides_quick/index.md
 user_guides_advanced/advanced_build_guides.md
 user_guides_advanced/advanced_run_guides.md
 user_guides_advanced/advanced_deploy_guides.md
@@ -50,15 +46,11 @@ other_tools/profiling.md
 
 :::{toctree}
 :caption: appendix
-:maxdepth: 1
+:maxdepth: 2
 :name: appendix
 :numbered:
 
-appendix/op_support_list_ax650.md
-appendix/op_support_list_ax620e.md
-appendix/op_support_list_ax615.md
-appendix/op_support_list_m57.md
-appendix/op_support_list_ax637.md
+appendix/op_support_list.md
 appendix/precision_debug_guides.md
 appendix/build_llm.md
 appendix/model_convert_examples.md

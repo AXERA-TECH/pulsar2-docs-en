@@ -85,12 +85,12 @@ pulsar2 build --target_hardware AX637 --input model/mobilenetv2-sim.onnx --outpu
 ```
 
 :::{warning}
-Before compiling the model, you need to make sure that the original model has been optimized using the `onnxsim` tool. The main purpose is to convert the model into a static graph that is more conducive to `Pulsar2` compilation and obtain better inference performance. There are two methods:
+Before compiling the model, you need to make sure that the original model has been optimized using the `onnxslim` tool. The main purpose is to convert the model into a static graph that is more conducive to `Pulsar2` compilation and obtain better inference performance. There are two methods:
 
-1. Execute the command directly inside the `Pulsar2` docker: `onnxsim in.onnx out.onnx`.
+1. Execute the command directly inside the `Pulsar2` docker: `onnxslim in.onnx out.onnx`.
 2. When using `pulsar2 build` to convert the model, add the parameter: `--onnx_opt.enable_onnxsim true` (the default value is false).
 
-If you want to learn more about `onnxsim`, you can visit the [official website](https://github.com/daquexian/onnx-simplifier).
+If you want to learn more about `onnxslim`, you can visit the [official website](https://github.com/inisis/OnnxSlim).
 :::
 
 ### log reference information

@@ -77,11 +77,14 @@ This section introduces the complete use of the `pulsar2 build` command.
     --model_type          input model type. type: enum. required: false.
                           default: ONNX. option: ONNX, QuantAxModel, QuantONNX.
     --target_hardware     target hardware. type: enum. required: false. default:
-                          AX650. option: AX650, AX620E, AX615, M76H, M57.
+                          AX650. option: AX650, AX620E, AX615, AX637, AX8860,
+                          M76H, M57.
     --npu_mode            npu mode. while ${target_hardware} is AX650, npu mode
                           can be NPU1 / NPU2 / NPU3. while ${target_hardware} is
-                          AX620E or AX615, npu mode can be NPU1 / NPU2. type: enum.
-                          required: false. default: NPU1.
+                          AX620E or AX615, npu mode can be NPU1 / NPU2.
+                          while ${target_hardware} is AX8860, npu mode can be
+                          NPU1 / NPU2 / NPU4. type: enum. required: false.
+                          default: NPU1.
     --input_shapes        modify model input shape of input model, this feature
                           will take effect before the `input_processors`
                           configuration. format:
@@ -92,7 +95,7 @@ This section introduces the complete use of the `pulsar2 build` command.
                           false. default: false.
     --onnx_opt.enable_onnxsim []
                           enable onnx simplify by
-                          https://github.com/daquexian/onnx-simplifier. type:
+                          https://github.com/inisis/OnnxSlim. type:
                           bool. required: false. default: false.
     --onnx_opt.model_check []
                           enable model check. type: bool. required: false.
@@ -277,19 +280,22 @@ This section introduces the complete use of the `pulsar2 build` command.
         - type of data: enum
         - required or not:  no
         - default value: AX650
-        - description： the target soc platform type for model compilation, supports ``AX650``, ``AX620E``, ``M76H``
+        - description： the target SoC platform type for model compilation, supporting ``AX650``, ``AX620E``, ``AX615``, ``AX637``, ``AX8860``, ``M76H``, and ``M57``
 
     --npu_mode
 
         - type of data: enum
         - required or not:  no
         - default value: NPU1
-        - description： model compilation mode
+        - description： model compilation mode. For the available ``npu_mode`` values and hardware resources on each chip platform, see {ref}`Chip platforms and available npu_mode values <neutron_platform_npu_mode>`.
 
-            * When the soc platform is ``AX650``, enumeration is supported: ``NPU1``, ``NPU2``, ``NPU3``
-            * When the SOC platform is ``AX620E``, enumeration is supported: ``NPU1``, ``NPU2``
+            * ``AX650`` / ``M76H`` support ``NPU1``, ``NPU2``, and ``NPU3``.
+            * ``AX620E`` / ``AX630C`` / ``AX620Q`` support ``NPU1`` and ``NPU2``.
+            * ``AX615`` supports ``NPU1`` and ``NPU2``.
+            * ``M57`` / ``AX637`` support ``NPU1``.
+            * ``AX8860`` supports ``NPU1``, ``NPU2``, and ``NPU4``.
 
-      .. warning:: npu_mode refers to the number of NPU cores used, not the vNPU number, please don't be confused.
+      .. warning:: npu_mode refers to the amount of NPU resources used, not a vNPU number.
 
     --input_shapes
 
@@ -312,7 +318,7 @@ This section introduces the complete use of the `pulsar2 build` command.
             - type of data: bool
             - required or not:  no
             - default value: false
-            - description： whether to use the `onnxsim` tool to simplify floating point ONNX, https://github.com/daquexian/onnx-simplifier.
+            - description： whether to use the `onnxslim` tool to simplify floating-point ONNX, https://github.com/inisis/OnnxSlim.
 
         - model_check
 
@@ -647,7 +653,7 @@ root@xxx:/data# pulsar2 build --input model/mobilenetv2-sim.onnx --output_dir ou
 
 `pulsar2 build` supports users to configure the batch_size of the model, which is divided into two modes: static multi-batch and dynamic multi-batch compilation. These two modes are mutually exclusive. This chapter uses `AX650` as an example.
 
-(multi-batch-static_compile)=
+(multi_batch_static_compile)=
 
 ### Static multi-batch mode
 
@@ -662,7 +668,7 @@ Taking the mobilenetv2 model as an example, the original model input `input` sha
 After static multi-batch compilation with `static_batch_sizes` equal to [1, 2, 4], the shape will become `[4, 224, 224, 3]`.
 :::
 
-(multi-batch-dynamic_compile)=
+(multi_batch_dynamic_compile)=
 
 ### Dynamic multi-batch mode
 
@@ -1001,6 +1007,164 @@ root@aa:/data/quick_start_example# pulsar2 build --input model/mobilenetv2-sim.o
 └───────┴──────────────────┴───────────────────┴─────────────┴───────────────┴──────────────────────────────────────────────────────────────┴────────────────────┘
 ...
 ```
+
+(cascade_model_input_scale_zp)=
+
+## Cascaded model adaptation
+
+In a cascaded-model workflow, the input to a downstream model usually comes from the quantized output of an upstream model. The runtime input is therefore quantized integer data such as `U8`, `S8`, `U16`, or `S16`. Explicitly describe the quantization parameters of this input in the downstream model's `input_processors` so that the compiled `compiled.axmodel` interprets the input data using the upstream output's `scale` and `zeropoint`.
+
+`input_processors.scale` and `input_processors.zeropoint` describe the dequantization parameters of the runtime input. When `scale` is set to `0` or omitted, the toolchain retains its historical default behavior and uses `scale=1` and `zeropoint=0`. `zeropoint` takes effect only when `scale` is nonzero.
+
+:::{attention}
+`quant.input_configs.calibration_mean` and `calibration_std` normalize quantization calibration data. Do not use them to represent the runtime input quantization parameters of a cascaded model. Configure the cascaded input's `scale` and `zeropoint` in `input_processors`.
+:::
+
+### Basic configuration
+
+The following example describes a downstream model whose original `input` is an `FP32` NCHW tensor. At runtime, the upstream model supplies a `U8` NCHW tensor whose quantization parameters are `scale=0.25` and `zeropoint=9`:
+
+```json
+{
+  "model_type": "ONNX",
+  "npu_mode": "NPU1",
+  "quant": {
+    "input_configs": [
+      {
+        "tensor_name": "input",
+        "calibration_dataset": "./dataset/input_tensor.tar",
+        "calibration_size": 32,
+        "calibration_format": "Numpy"
+      }
+    ],
+    "calibration_method": "MinMax",
+    "precision_analysis": false
+  },
+  "input_processors": [
+    {
+      "tensor_name": "input",
+      "tensor_format": "BGR",
+      "tensor_layout": "NCHW",
+      "src_format": "BGR",
+      "src_layout": "NCHW",
+      "src_dtype": "U8",
+      "scale": 0.25,
+      "zeropoint": 9
+    }
+  ],
+  "compiler": {
+    "check": 0
+  }
+}
+```
+
+:::{note}
+In production, use a calibration dataset that matches the actual input distribution of the downstream model. If the calibration data is already a model-input tensor, use the `Numpy`, `Binary`, or `NumpyObject` format and do not configure `calibration_mean` or `calibration_std`.
+:::
+
+### Relationship with preprocessing operators
+
+`scale` and `zeropoint` can be used together with layout conversion, normalization, and other preprocessing settings in `input_processors`:
+
+- When `src_layout` differs from `tensor_layout`, the toolchain inserts `AxTranspose`. `scale` and `zeropoint` are retained in the subsequent quantized-input processing operator.
+- When `mean` and `std` are configured in `input_processors`, the toolchain inserts `AxQuantizedNormalizeV2` and writes `input_scales` and `input_zeropoints` to that operator.
+- For cascaded-model adaptation, configuring the downstream model's runtime input as `YUV420SP` or `YVU420SP` is not recommended. A downstream model should normally receive the upstream model's quantized output tensor directly and use that tensor's actual layout, dtype, `scale`, and `zeropoint`.
+
+For example, if the runtime input uses `NHWC` while the original model input uses `NCHW`, set only `src_layout` to `NHWC`:
+
+```json
+{
+  "input_processors": [
+    {
+      "tensor_name": "input",
+      "tensor_format": "BGR",
+      "tensor_layout": "NCHW",
+      "src_format": "BGR",
+      "src_layout": "NHWC",
+      "src_dtype": "U8",
+      "scale": 0.25,
+      "zeropoint": 9
+    }
+  ]
+}
+```
+
+To embed normalization in the model as well, add `mean` and `std` to the same `input_processors` entry:
+
+```json
+{
+  "input_processors": [
+    {
+      "tensor_name": "input",
+      "tensor_format": "BGR",
+      "tensor_layout": "NCHW",
+      "src_format": "BGR",
+      "src_layout": "NHWC",
+      "src_dtype": "U8",
+      "mean": [0, 0, 0],
+      "std": [255, 255, 255],
+      "scale": 0.25,
+      "zeropoint": 9
+    }
+  ]
+}
+```
+
+If the downstream model does not receive an upstream model's output and actually needs to receive YUV image data directly from a sensor or decoder, YUV and CSC can be configured. This is not the recommended configuration for a cascaded model. A YUV input must also use a valid CSC mode:
+
+```json
+{
+  "input_processors": [
+    {
+      "tensor_name": "input",
+      "tensor_format": "BGR",
+      "tensor_layout": "NCHW",
+      "src_format": "YUV420SP",
+      "src_layout": "NHWC",
+      "src_dtype": "U8",
+      "csc_mode": "LimitedRange",
+      "scale": 0.25,
+      "zeropoint": 9
+    }
+  ]
+}
+```
+
+:::{warning}
+For a `YUV420SP` or `YVU420SP` input, `csc_mode` must be `Matrix`, `FullRange`, or `LimitedRange`; it cannot remain `NoCSC`. The YUV input path treats the runtime input layout as `NHWC` and adjusts the input shape to the NV12 or NV21 form. For example, a `224x224` input becomes `[1, 336, 224, 1]`.
+:::
+
+### Verify the result
+
+During compilation, use the `Quant Config Table` to confirm that `calibration_mean` and `calibration_std` do not participate in input normalization. When they are omitted, `Mean` and `Std` are empty arrays:
+
+```text
+Quant Config Table
+┏━━━━━━━┳━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┳━━━━━━┳━━━━━┓
+┃ Input ┃ Shape            ┃ Dataset Directory ┃ Data Format ┃ Tensor Format ┃ Mean ┃ Std ┃
+┡━━━━━━━╇━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━╇━━━━━━╇━━━━━┩
+│ input │ [1, 3, 224, 224] │ input             │ Numpy       │ BGR           │ []   │ []  │
+└───────┴──────────────────┴───────────────────┴─────────────┴───────────────┴──────┴─────┘
+```
+
+To further confirm that `scale` and `zeropoint` were written to the quantized frontend graph, enable `debug.dump_frontend_graph` in the configuration file and inspect `output/frontend/optimized_quant_axmodel.onnx` after compilation:
+
+```json
+{
+  "debug": {
+    "dump_frontend_graph": true
+  }
+}
+```
+
+Open the exported frontend graph in Netron and select the `AxRequantizeLinear` node after the input. In the `ATTRIBUTES` panel, `input_scales` and `input_zeropoints` should contain the configured `scale` and `zeropoint` values:
+
+:::{figure} ../media/input_processors_scale_zp_netron.png
+:align: center
+:alt: input_processors scale and zeropoint in the frontend graph
+
+The `AxRequantizeLinear` node shows `input_scales=0.25` and `input_zeropoints=9`, confirming that `input_processors.scale` and `input_processors.zeropoint` were written to the quantized frontend graph.
+:::
 
 ## Multi-input model configuration quantitative data set
 

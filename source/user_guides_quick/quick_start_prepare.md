@@ -10,9 +10,9 @@ This section describes the development environment preparations before using the
 
 The Docker development environment can be installed on MacOS, Linux, and Windows operating systems. For the minimum configuration requirements and specific installation procedures for the installation environment under different operating systems, please refer to the following links:
 
-- [MacOS install Docker environment](https://docs.docker.com/desktop/mac/install/)
-- [Linux install Docker environment](https://docs.docker.com/engine/install/##server)
-- [Windows install Docker environment](https://docs.docker.com/desktop/windows/install/)
+- [MacOS install Docker environment](https://docs.docker.com/desktop/setup/install/mac-install/)
+- [Linux install Docker environment](https://docs.docker.com/engine/install/)
+- [Windows install Docker environment](https://docs.docker.com/desktop/setup/install/windows-install/)
 
 After `Docker` is successfully installed, enter `sudo docker -v`
 
@@ -85,7 +85,7 @@ root@xxx:~/data# ls
 config  dataset  model  output  pulsar2-run-helper
 ```
 
-- `model`: stores the original `ONNX` model `mobilenetv2-sim.onnx` (the calculation graph of `onnxsim` has been optimized in advance)
+- `model`: stores the original `ONNX` model `mobilenetv2-sim.onnx` (the computation graph has been optimized in advance with `onnxslim`)
 - `dataset`: stores the compressed package of the dataset required for offline quantitative calibration (PTQ Calibration) (supports common compression formats such as tar, tar.gz, gz, etc.)
 - `config`: stores the configuration file `config.json` that depends on the operation
 - `output`: stores the result output
